@@ -55,6 +55,8 @@
         <h1>Bootstrap starter template</h1>
         <p class="lead">Use this document as a way to quickly start any new project.<br> All you get is this text and a mostly barebones HTML document.</p>
       </div>
+      
+      <button id="google" title="Log in using your Google account">Google</button>
 
     </div><!-- /.container -->
 
@@ -67,5 +69,33 @@
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <!-- <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script> -->
   
+  <script src="/assets/js/oauth.js"></script>
+<script>
+    function googleLogin() {
+        OAuth.initialize('nW-uwfmcz6AMr4uIJEIuBFcvxyA');
+        OAuth.popup('google').done(function (result) {
+            console.log(result);
+             var url = "https://wyoets.harvestapp.com/account/who_am_i";
 
-<div style="display: none; color: white; text-align: center; position: fixed; top: 0px; left: 0px; width: 100%; height: auto; min-width: 100%; max-width: 100%; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: 'Helvetica Neue', Helvetica, Arial, Geneva, sans-serif; cursor: pointer; padding: 5px; background-color: rgb(255, 143, 0);"><span style="color: white; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: 'Helvetica Neue', Helvetica, Arial, Geneva, sans-serif;">You have turned off the paragraph player. You can turn it on again from the options page.</span><img src="chrome-extension://gfjopfpjmkcfgjpogepmdjmcnihfpokn/img/icons/icon-close_16.png" style="width: 20px; height: auto; min-width: 20px; max-width: 20px; float: right; margin-right: 10px;"></div></body></html>
+            $.ajax({
+                type: "POST",
+                url: url,
+                success: success,
+                headers: {
+                    "access_token": result.access_token,
+                    "Accept": "application/json",
+                    "Access-Control-Allow-Origin": "http://localhost:8888"
+                },
+                dataType: "text"
+            }); 
+        });
+
+        function success(d) { alert(d);/*  window.location.href = '/' */ };
+    }
+
+    $('#google').click(googleLogin);
+  </script>
+
+<div style="display: none; color: white; text-align: center; position: fixed; top: 0px; left: 0px; width: 100%; height: auto; min-width: 100%; max-width: 100%; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: 'Helvetica Neue', Helvetica, Arial, Geneva, sans-serif; cursor: pointer; padding: 5px; background-color: rgb(255, 143, 0);"><span style="color: white; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: 'Helvetica Neue', Helvetica, Arial, Geneva, sans-serif;">You have turned off the paragraph player. You can turn it on again from the options page.</span><img src="chrome-extension://gfjopfpjmkcfgjpogepmdjmcnihfpokn/img/icons/icon-close_16.png" style="width: 20px; height: auto; min-width: 20px; max-width: 20px; float: right; margin-right: 10px;"></div>
+</body>
+</html>
