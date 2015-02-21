@@ -89,7 +89,7 @@ public class YourFirstAPI {
 		
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(Calendar.YEAR, year);
-		calendar.set(Calendar.MONTH, month);
+		calendar.set(Calendar.MONTH, month - 1);
 	
 		if (email != "") {				
 			for (int i = 0; i < calendar.getActualMaximum(Calendar.DAY_OF_MONTH); i++) {
@@ -136,6 +136,7 @@ public class YourFirstAPI {
 			break;
 		case Calendar.FRIDAY:
 			day.setAnnual(8.0);
+			day.setReportedHours(40.0);
 			break;
 		default:
 			break;

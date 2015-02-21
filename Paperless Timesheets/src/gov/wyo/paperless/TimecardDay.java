@@ -14,6 +14,10 @@ public class TimecardDay {
 	private double onCall;
 	private double base;
 	private double callback;
+	private double reportedHours;
+	private double otEarned;
+	private double stHours;
+	
 	public Date getDate() {
 		return date;
 	}
@@ -79,6 +83,24 @@ public class TimecardDay {
 	}
 	public void setCallback(double callback) {
 		this.callback = callback;
+	}
+	public double getReportedHours() {
+		return reportedHours;
+	}
+	public void setReportedHours(double reportedHours) {
+		this.reportedHours = reportedHours;
+	}
+	public double getOtEarned() {
+		return otEarned;
+	}
+	public void setOtEarned(double otEarned) {
+		this.otEarned = otEarned;
+	}
+	public double getStHours() {
+		return stHours;
+	}
+	public void setStHours(double stHours) {
+		this.stHours = stHours;
 	}
 	
 }

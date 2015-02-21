@@ -181,6 +181,15 @@
           },
           "callback" : {
             "type" : "number"
+          },
+          "reportedHours" : {
+            "type" : "number"
+          },
+          "otEarned" : {
+            "type" : "number"
+          },
+          "stHours" : {
+            "type" : "number"
           }
         }
       },

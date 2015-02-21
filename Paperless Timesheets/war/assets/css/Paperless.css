@@ -1,8 +1,25 @@
 body {
   padding-top: 50px;
+  /* background-color: LightYellow; */
 }
 
 .starter-template {
   padding: 40px 15px;
   text-align: center;
 }
+
+.paperlesscell {
+	padding: 3px 8px !important;
+}
+
+.mutetext {
+	color: #292929;
+}
+
+.friday {
+	background-color: midnightblue !important;
+}
+
+/* thead {
+	background-color: lightcyan !important;
+} */
