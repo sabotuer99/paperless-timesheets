@@ -17,6 +17,10 @@ body {
 }
 
 .friday {
+	background-color: navy !important;
+}
+
+.friday:hover {
 	background-color: midnightblue !important;
 }
 
