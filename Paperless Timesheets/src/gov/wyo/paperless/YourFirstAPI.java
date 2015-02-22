@@ -1,5 +1,6 @@
 package gov.wyo.paperless;
 
+import java.io.IOException;
 import java.util.Calendar;
 
 import com.google.api.server.spi.config.Api;
@@ -8,6 +9,7 @@ import com.google.api.server.spi.config.ApiNamespace;
 import com.google.appengine.labs.repackaged.org.json.JSONException;
 import com.google.appengine.labs.repackaged.org.json.JSONObject;
 import com.google.appengine.labs.repackaged.org.json.JSONTokener;
+import com.google.api.services.drive.model.File;
 
 import javax.inject.Named;
 
@@ -66,21 +68,29 @@ public class YourFirstAPI {
 	 * @throws ParseException
 	 */
 	@ApiMethod(name = "dummyGoogleSheet")
-	public Timecard dummyGoogleSheet(
+	public MyBean dummyGoogleSheet(
 			@Named("token") String token, 
 			@Named("month") int month, 
 			@Named("year") int year) 
 	{
 
-		String email = validateEmailFromToken(token);
-		Timecard timecard = generateFakeTimecard(email, month, year);
+		//String email = validateEmailFromToken(token);
+		//Timecard timecard = generateFakeTimecard(email, month, year);
 		
-		return timecard;
-	}
+		//return timecard;
+		File sheet = new File();
+		
+		try {
+			sheet = new GoogleDriveHelper().CreateNewSheet(token);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-	
-	
-	
+		MyBean result = new MyBean();
+		result.setData(sheet.getId());
+		return result;
+	}
 	
 
 	private Timecard generateFakeTimecard(String email, int month, int year) {

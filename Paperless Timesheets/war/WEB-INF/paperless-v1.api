@@ -216,7 +216,7 @@
       },
       "gov.wyo.paperless.YourFirstAPI.dummyGoogleSheet" : {
         "response" : {
-          "$ref" : "Timecard"
+          "$ref" : "MyBean"
         }
       },
       "gov.wyo.paperless.YourFirstAPI.timecard" : {

@@ -24,7 +24,7 @@ public class GoogleDriveHelper {
 		
 		String empty = "";
 		InputStreamContent mediaContent =
-			    new InputStreamContent("application/vnd.google-apps.spreadsheet",
+			    new InputStreamContent("text/csv",
 			        new BufferedInputStream(new ByteArrayInputStream(empty.getBytes(StandardCharsets.UTF_8))));		
 		mediaContent.setLength(empty.length());
 		
@@ -46,6 +46,10 @@ public class GoogleDriveHelper {
         	.build();	
 		
 		Drive.Files.Insert insert = drive.files().insert(fileMetadata, mediaContent);
-		return insert.execute();
+		insert.setConvert(true);
+		File sheet = insert.execute();
+		
+		return sheet;
+		
 	}
 }
