@@ -92,6 +92,37 @@ public class YourFirstAPI {
 		return result;
 	}
 	
+	/**
+	 * This endpoint writes timesheet data to Google Drive spreadsheet
+	 * 
+	 * @throws ParseException
+	 */
+	@ApiMethod(name = "dummyGoogleFolder")
+	public MyBean dummyGoogleFolder(
+			@Named("token") String token, 
+			@Named("month") int month, 
+			@Named("year") int year) 
+	{
+
+		//String email = validateEmailFromToken(token);
+		//Timecard timecard = generateFakeTimecard(email, month, year);
+		
+		//return timecard;
+		File folder = new File();
+		File subfolder = new File();
+		
+		try {
+			folder = new GoogleDriveHelper().CreateNewFolder(token, "");
+			subfolder = new GoogleDriveHelper().CreateNewFolder(token, folder.getId());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		MyBean result = new MyBean();
+		result.setData(folder.getId() + " | " + subfolder.getId());
+		return result;
+	}
 
 	private Timecard generateFakeTimecard(String email, int month, int year) {
 		Timecard timecard = new Timecard();
