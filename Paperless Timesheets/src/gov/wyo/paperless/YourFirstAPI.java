@@ -85,7 +85,7 @@ public class YourFirstAPI {
 		WorksheetEntry worksheet = new WorksheetEntry();
 		
 		try {
-			sheet = goog.CreateNewSheet(token);
+			sheet = goog.createNewSheet(token);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -124,8 +124,8 @@ public class YourFirstAPI {
 		File subfolder = new File();
 		
 		try {
-			folder = new GoogleDriveHelper().CreateNewFolder(token, "");
-			subfolder = new GoogleDriveHelper().CreateNewFolder(token, folder.getId());
+			folder = new GoogleDriveHelper().createNewFolder(token, "");
+			subfolder = new GoogleDriveHelper().createNewFolder(token, folder.getId());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

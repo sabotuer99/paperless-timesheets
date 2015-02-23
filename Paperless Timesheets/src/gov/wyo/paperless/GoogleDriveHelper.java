@@ -25,7 +25,7 @@ import com.google.gdata.data.spreadsheet.*;
 import com.google.gdata.util.*;
 
 public class GoogleDriveHelper {
-	public File CreateNewSheet(String accessToken) throws IOException{
+	public File createNewSheet(String accessToken) throws IOException{
 		GoogleCredential credential = new GoogleCredential().setAccessToken(accessToken);
 		
 		File fileMetadata = new File();
@@ -61,7 +61,7 @@ public class GoogleDriveHelper {
 		
 	}
 	
-	public File CreateNewFolder(String accessToken, String parentId) throws IOException{
+	public File createNewFolder(String accessToken, String parentId) throws IOException{
 		GoogleCredential credential = new GoogleCredential().setAccessToken(accessToken);
 		
 		File fileMetadata = new File();
@@ -115,7 +115,8 @@ public class GoogleDriveHelper {
 		           + sheetFile.getId() + "/private/full" + accessQuery);
 		SpreadsheetFeed feed = service.getFeed(feedUrl, SpreadsheetFeed.class);		
 		
-		SpreadsheetEntry spreadsheet = feed.getEntries().get(0);
+		List<SpreadsheetEntry> spreadsheets = feed.getEntries();
+		SpreadsheetEntry spreadsheet = spreadsheets.get(0);
 		WorksheetEntry worksheet = new WorksheetEntry();
 		worksheet.setTitle(new PlainTextConstruct("New Test Worksheet"));
 		worksheet.setColCount(10);
