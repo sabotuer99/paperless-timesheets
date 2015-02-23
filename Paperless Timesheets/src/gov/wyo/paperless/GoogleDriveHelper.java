@@ -168,12 +168,14 @@ public class GoogleDriveHelper {
 		scopes.add("https://www.googleapis.com/auth/drive");
 		scopes.add("https://spreadsheets.google.com/feeds/");	
 		
+		java.io.File pk = new java.io.File("/src/key.p12");
+		
 		// Build service account credential.
 		GoogleCredential credential = new GoogleCredential.Builder().setTransport(httpTransport)
 		    .setJsonFactory(jsonFactory)
 		    .setServiceAccountId(Constants.SERVICE_ACCOUNT_EMAIL)
 		    .setServiceAccountScopes(scopes)
-		    .setServiceAccountPrivateKeyFromP12File(new java.io.File("key.p12"))
+		    .setServiceAccountPrivateKeyFromP12File(pk)
 		    .setServiceAccountUser(Constants.SERVICE_ACCOUNT_EMAIL)
 		    .build();
 		
