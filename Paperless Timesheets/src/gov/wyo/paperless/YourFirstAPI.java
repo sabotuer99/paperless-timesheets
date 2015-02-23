@@ -1,6 +1,7 @@
 package gov.wyo.paperless;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Calendar;
 
 import com.google.api.server.spi.config.Api;
@@ -76,14 +77,11 @@ public class YourFirstAPI {
 			@Named("year") int year) 
 	{
 
-		//String email = validateEmailFromToken(token);
-		//Timecard timecard = generateFakeTimecard(email, month, year);
-		
-		//return timecard;
 		File sheet = new File();
 		GoogleDriveHelper goog = new GoogleDriveHelper();
 		WorksheetEntry worksheet = new WorksheetEntry();
 		
+		//Create a new spreadsheet
 		try {
 			sheet = goog.createNewSheet(token);
 		} catch (IOException e) {
@@ -91,9 +89,9 @@ public class YourFirstAPI {
 			e.printStackTrace();
 		}
 
-		
+		//Update the default worksheet
 		try {
-			worksheet = goog.addWorksheet(sheet, token);
+			worksheet = goog.updateWorksheet(sheet, token);
 		} catch (IOException | ServiceException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -119,20 +117,33 @@ public class YourFirstAPI {
 		//String email = validateEmailFromToken(token);
 		//Timecard timecard = generateFakeTimecard(email, month, year);
 		
+		GoogleDriveHelper goog = new GoogleDriveHelper();
+		
+		//try this with the service account
+		try {
+			token = goog.getServiceAccoutAccessToken();
+			System.out.println("Service Account access_token: " + token);
+		} catch (GeneralSecurityException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 		//return timecard;
 		File folder = new File();
 		File subfolder = new File();
+		File sharedsubfolder = new File();
 		
 		try {
-			folder = new GoogleDriveHelper().createNewFolder(token, "");
-			subfolder = new GoogleDriveHelper().createNewFolder(token, folder.getId());
+			folder = goog.createNewFolder(token, "");
+			subfolder = goog.createNewFolder(token, folder.getId());
+			sharedsubfolder = goog.createNewFolder(token, "0BxN4AmtAyCpGfnljblM5d3N6aWh3VlR4ZWR4eDFiN2phR0NUVGdtVV9ING02dHFnc1pteGM");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		MyBean result = new MyBean();
-		result.setData(folder.getId() + " | " + subfolder.getId());
+		result.setData(folder.getId() + " | " + subfolder.getId() + " | " + sharedsubfolder.getId());
 		return result;
 	}
 

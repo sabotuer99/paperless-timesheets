@@ -7,7 +7,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
@@ -25,18 +30,22 @@ import com.google.gdata.data.spreadsheet.*;
 import com.google.gdata.util.*;
 
 public class GoogleDriveHelper {
+	
 	public File createNewSheet(String accessToken) throws IOException{
 		GoogleCredential credential = new GoogleCredential().setAccessToken(accessToken);
 		
+	    SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
+	    Date now = new Date();
+	    String strDate = sdfDate.format(now);
+		
 		File fileMetadata = new File();
-		fileMetadata.setTitle("Test File");
+		fileMetadata.setTitle("Test File " + strDate);
 		fileMetadata.setMimeType("application/vnd.google-apps.spreadsheet");
 		
-		String empty = "";
+		String template = ",\n,";
 		InputStreamContent mediaContent =
 			    new InputStreamContent("text/csv",
-			        new BufferedInputStream(new ByteArrayInputStream(empty.getBytes(StandardCharsets.UTF_8))));		
-		mediaContent.setLength(empty.length());
+			        new BufferedInputStream(new ByteArrayInputStream(template.getBytes(StandardCharsets.UTF_8))));		
 		
 		HttpTransport transport = null;
 		try {
@@ -56,6 +65,7 @@ public class GoogleDriveHelper {
         	.build();	
 		
 		Drive.Files.Insert insert = drive.files().insert(fileMetadata, mediaContent);
+		insert.setConvert(true);
 		File sheet = insert.execute();
 		return sheet;
 		
@@ -106,26 +116,67 @@ public class GoogleDriveHelper {
 		return folder;		
 	}
 	
-	public WorksheetEntry addWorksheet(File sheetFile, String accessToken) throws IOException, ServiceException, MalformedURLException
+	public WorksheetEntry updateWorksheet(File sheetFile, String accessToken) throws IOException, ServiceException, MalformedURLException
 	{	
 		SpreadsheetService service = new SpreadsheetService(Constants.APPLICATION_NAME);
-			
-		String accessQuery = "?access_token=" + accessToken;
-		URL feedUrl = new URL("https://spreadsheets.google.com/feeds/worksheets/" 
-		           + sheetFile.getId() + "/private/full" + accessQuery);
-		SpreadsheetFeed feed = service.getFeed(feedUrl, SpreadsheetFeed.class);		
+		GoogleCredential credential = new GoogleCredential().setAccessToken(accessToken);
+		service.setOAuth2Credentials(credential);	
 		
-		List<SpreadsheetEntry> spreadsheets = feed.getEntries();
+		// Define the URL to request.  This should never change.
+	    URL SPREADSHEET_FEED_URL = new URL(
+	        "https://spreadsheets.google.com/feeds/spreadsheets/private/full");
+
+	    // Make a request to the API and get all spreadsheets.
+	    SpreadsheetFeed feed = service.getFeed(SPREADSHEET_FEED_URL,
+	        SpreadsheetFeed.class);
+	    List<SpreadsheetEntry> spreadsheets = feed.getEntries();	
+		
 		SpreadsheetEntry spreadsheet = spreadsheets.get(0);
-		WorksheetEntry worksheet = new WorksheetEntry();
-		worksheet.setTitle(new PlainTextConstruct("New Test Worksheet"));
-		worksheet.setColCount(10);
-		worksheet.setRowCount(20);
-		
-		URL worksheetFeedUrl = spreadsheet.getWorksheetFeedUrl();
-		WorksheetEntry wsResult = service.insert(worksheetFeedUrl, worksheet);
-			
-		return wsResult;
+		System.out.println(spreadsheet.getTitle().getPlainText());
+	    
+		// Get the first worksheet of the first spreadsheet.
+	    // TODO: Choose a worksheet more intelligently based on your
+	    // app's needs.
+	    WorksheetFeed worksheetFeed = service.getFeed(
+	        spreadsheet.getWorksheetFeedUrl(), WorksheetFeed.class);
+	    List<WorksheetEntry> worksheets = worksheetFeed.getEntries();
+	    WorksheetEntry worksheet = worksheets.get(0);
+
+	    // Update the local representation of the worksheet.
+	    worksheet.setTitle(new PlainTextConstruct("Updated Worksheet"));
+	    worksheet.setColCount(5);
+	    worksheet.setRowCount(15);
+
+	    // Send the local representation of the worksheet to the API for
+	    // modification.
+	    worksheet.update();
+	    
+		return worksheet;
 	}
 	
+	public File transferOwnership(String accessToken, String newOwner){
+		return new File();
+	}
+	
+	public String getServiceAccoutAccessToken() throws GeneralSecurityException, IOException{
+		HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+		JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+		
+		Collection<String> scopes = new ArrayList<String>();
+		scopes.add("profile");
+		scopes.add("email");
+		scopes.add("https://www.googleapis.com/auth/drive");
+		scopes.add("https://spreadsheets.google.com/feeds/");	
+		
+		// Build service account credential.
+		GoogleCredential credential = new GoogleCredential.Builder().setTransport(httpTransport)
+		    .setJsonFactory(jsonFactory)
+		    .setServiceAccountId(Constants.SERVICE_ACCOUNT_EMAIL)
+		    .setServiceAccountScopes(scopes)
+		    .setServiceAccountPrivateKeyFromP12File(new java.io.File("key.p12"))
+		    .setServiceAccountUser(Constants.SERVICE_ACCOUNT_EMAIL)
+		    .build();
+		
+		return credential.getAccessToken();
+	}
 }
