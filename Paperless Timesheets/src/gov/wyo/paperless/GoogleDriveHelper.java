@@ -3,6 +3,8 @@ package gov.wyo.paperless;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
@@ -17,6 +19,10 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.ParentReference;
+import com.google.gdata.client.spreadsheet.*;
+import com.google.gdata.data.*;
+import com.google.gdata.data.spreadsheet.*;
+import com.google.gdata.util.*;
 
 public class GoogleDriveHelper {
 	public File CreateNewSheet(String accessToken) throws IOException{
@@ -24,6 +30,7 @@ public class GoogleDriveHelper {
 		
 		File fileMetadata = new File();
 		fileMetadata.setTitle("Test File");
+		fileMetadata.setMimeType("application/vnd.google-apps.spreadsheet");
 		
 		String empty = "";
 		InputStreamContent mediaContent =
@@ -49,9 +56,7 @@ public class GoogleDriveHelper {
         	.build();	
 		
 		Drive.Files.Insert insert = drive.files().insert(fileMetadata, mediaContent);
-		insert.setConvert(true);
 		File sheet = insert.execute();
-		
 		return sheet;
 		
 	}
@@ -98,14 +103,28 @@ public class GoogleDriveHelper {
 		Drive.Files.Insert insert = drive.files().insert(fileMetadata, mediaContent);
 		File folder = insert.execute();
 		
-/*		if(!parentId.isEmpty())
-		{
-			ParentReference newParent = new ParentReference();
-		    newParent.setId(parentId);
-		    drive.parents().insert(folder.getId(), newParent).execute();
-		}*/
-		
-		return folder;
-		
+		return folder;		
 	}
+	
+	public WorksheetEntry addWorksheet(File sheetFile, String accessToken) throws IOException, ServiceException, MalformedURLException
+	{	
+		SpreadsheetService service = new SpreadsheetService(Constants.APPLICATION_NAME);
+			
+		String accessQuery = "?access_token=" + accessToken;
+		URL feedUrl = new URL("https://spreadsheets.google.com/feeds/worksheets/" 
+		           + sheetFile.getId() + "/private/full" + accessQuery);
+		SpreadsheetFeed feed = service.getFeed(feedUrl, SpreadsheetFeed.class);		
+		
+		SpreadsheetEntry spreadsheet = feed.getEntries().get(0);
+		WorksheetEntry worksheet = new WorksheetEntry();
+		worksheet.setTitle(new PlainTextConstruct("New Test Worksheet"));
+		worksheet.setColCount(10);
+		worksheet.setRowCount(20);
+		
+		URL worksheetFeedUrl = spreadsheet.getWorksheetFeedUrl();
+		WorksheetEntry wsResult = service.insert(worksheetFeedUrl, worksheet);
+			
+		return wsResult;
+	}
+	
 }

@@ -10,6 +10,8 @@ import com.google.appengine.labs.repackaged.org.json.JSONException;
 import com.google.appengine.labs.repackaged.org.json.JSONObject;
 import com.google.appengine.labs.repackaged.org.json.JSONTokener;
 import com.google.api.services.drive.model.File;
+import com.google.gdata.data.spreadsheet.WorksheetEntry;
+import com.google.gdata.util.ServiceException;
 
 import javax.inject.Named;
 
@@ -79,16 +81,26 @@ public class YourFirstAPI {
 		
 		//return timecard;
 		File sheet = new File();
+		GoogleDriveHelper goog = new GoogleDriveHelper();
+		WorksheetEntry worksheet = new WorksheetEntry();
 		
 		try {
-			sheet = new GoogleDriveHelper().CreateNewSheet(token);
+			sheet = goog.CreateNewSheet(token);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
+		
+		try {
+			worksheet = goog.addWorksheet(sheet, token);
+		} catch (IOException | ServiceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		MyBean result = new MyBean();
-		result.setData(sheet.getId());
+		result.setData(sheet.getId() + " | " + worksheet.getId());
 		return result;
 	}
 	
