@@ -104,6 +104,7 @@ public class YourFirstAPI {
 	
 	/**
 	 * This endpoint writes timesheet data to Google Drive spreadsheet
+	 * @throws GeneralSecurityException 
 	 * 
 	 * @throws ParseException
 	 */
@@ -111,7 +112,7 @@ public class YourFirstAPI {
 	public MyBean dummyGoogleFolder(
 			@Named("token") String token, 
 			@Named("month") int month, 
-			@Named("year") int year) 
+			@Named("year") int year) throws GeneralSecurityException 
 	{
 
 		//String email = validateEmailFromToken(token);
@@ -127,7 +128,7 @@ public class YourFirstAPI {
 		try {
 			folder = goog.createNewFolder(token, "");
 			subfolder = goog.createNewFolder(token, folder.getId());
-			sharedsubfolder = goog.createNewFolder(token, "0BxN4AmtAyCpGfnljblM5d3N6aWh3VlR4ZWR4eDFiN2phR0NUVGdtVV9ING02dHFnc1pteGM");
+			sharedsubfolder = goog.createNewFolder(token, "0BxN4AmtAyCpGfkU3YW9DMXQ3VGY2X2xHNHYycUZOQnRRbEdBVDhvRzVPcDhIYTRVck5oMkk");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -211,7 +212,7 @@ public class YourFirstAPI {
 		String token = "";
 		//try this with the service account
 		try {
-			token = new GoogleDriveHelper().getServiceAccoutAccessToken();
+			token = new GoogleDriveHelper().getServiceAccoutAccessToken().toString();
 			System.out.println("Service Account access_token: " + token);
 		} catch (GeneralSecurityException | IOException e1) {
 			// TODO Auto-generated catch block

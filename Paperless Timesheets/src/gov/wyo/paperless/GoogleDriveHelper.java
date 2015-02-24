@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
@@ -72,8 +73,8 @@ public class GoogleDriveHelper {
 		
 	}
 	
-	public File createNewFolder(String accessToken, String parentId) throws IOException{
-		GoogleCredential credential = new GoogleCredential().setAccessToken(accessToken);
+	public File createNewFolder(String accessToken, String parentId) throws IOException, GeneralSecurityException{
+		GoogleCredential credential = getServiceAccoutAccessToken();//new GoogleCredential().setAccessToken(accessToken);
 		
 		File fileMetadata = new File();
 		fileMetadata.setTitle("Test Folder");
@@ -159,15 +160,15 @@ public class GoogleDriveHelper {
 		return new File();
 	}
 	
-	public String getServiceAccoutAccessToken() throws GeneralSecurityException, IOException{
+	public GoogleCredential getServiceAccoutAccessToken() throws GeneralSecurityException, IOException{
 		HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
 		JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
 		
 		Collection<String> scopes = new ArrayList<String>();
 		scopes.add("https://www.googleapis.com/auth/userinfo.profile");
 		scopes.add("https://www.googleapis.com/auth/userinfo.email");
-		//scopes.add("https://www.googleapis.com/auth/drive");
-		//scopes.add("https://spreadsheets.google.com/feeds/");	
+		scopes.add("https://www.googleapis.com/auth/drive");
+		scopes.add("https://spreadsheets.google.com/feeds/");	
 				
 		InputStream keyStream = GoogleDriveHelper.class.getResourceAsStream("key.p12");
 		KeyStore keystore = KeyStore.getInstance("PKCS12");
@@ -184,6 +185,6 @@ public class GoogleDriveHelper {
 		    //.setServiceAccountUser("troy.whorten@wyo.gov")
 		    .build();
 		
-		return credential.getAccessToken();
+		return credential;
 	}
 }
