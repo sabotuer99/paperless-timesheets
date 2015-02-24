@@ -3,15 +3,16 @@ package gov.wyo.paperless;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.security.KeyStore;
+import java.security.PrivateKey;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -163,20 +164,24 @@ public class GoogleDriveHelper {
 		JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
 		
 		Collection<String> scopes = new ArrayList<String>();
-		scopes.add("profile");
-		scopes.add("email");
-		scopes.add("https://www.googleapis.com/auth/drive");
-		scopes.add("https://spreadsheets.google.com/feeds/");	
-		
-		java.io.File pk = new java.io.File("/src/key.p12");
+		scopes.add("https://www.googleapis.com/auth/userinfo.profile");
+		scopes.add("https://www.googleapis.com/auth/userinfo.email");
+		//scopes.add("https://www.googleapis.com/auth/drive");
+		//scopes.add("https://spreadsheets.google.com/feeds/");	
+				
+		InputStream keyStream = GoogleDriveHelper.class.getResourceAsStream("key.p12");
+		KeyStore keystore = KeyStore.getInstance("PKCS12");
+		String p12Password = "notasecret";
+		keystore.load(keyStream, p12Password.toCharArray());
+		PrivateKey key = (PrivateKey)keystore.getKey("privatekey", p12Password.toCharArray());
 		
 		// Build service account credential.
 		GoogleCredential credential = new GoogleCredential.Builder().setTransport(httpTransport)
 		    .setJsonFactory(jsonFactory)
-		    .setServiceAccountId(Constants.SERVICE_ACCOUNT_EMAIL)
+		    .setServiceAccountId(Constants.SERVICE_ACCOUNT_ID)
 		    .setServiceAccountScopes(scopes)
-		    .setServiceAccountPrivateKeyFromP12File(pk)
-		    .setServiceAccountUser(Constants.SERVICE_ACCOUNT_EMAIL)
+		    .setServiceAccountPrivateKey(key)
+		    //.setServiceAccountUser("troy.whorten@wyo.gov")
 		    .build();
 		
 		return credential.getAccessToken();

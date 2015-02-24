@@ -13,6 +13,10 @@
     <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
   </system-properties>
 
+<resource-files>
+	<include path="/**.p12" />
+</resource-files>
+
   <!--
     HTTP Sessions are disabled by default. To enable HTTP sessions specify:
 

@@ -126,6 +126,21 @@
         "body" : "autoTemplate(backendResponse)"
       }
     },
+    "paperless.serviceAccountToken" : {
+      "path" : "serviceAccountToken",
+      "httpMethod" : "POST",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "gov.wyo.paperless.YourFirstAPI.serviceAccountToken",
+      "request" : {
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    },
     "paperless.dummyGoogleFolder" : {
       "path" : "dummyGoogleFolder/{token}/{month}/{year}",
       "httpMethod" : "POST",
@@ -249,6 +264,11 @@
         }
       },
       "gov.wyo.paperless.YourFirstAPI.timecard" : {
+        "response" : {
+          "$ref" : "MyBean"
+        }
+      },
+      "gov.wyo.paperless.YourFirstAPI.serviceAccountToken" : {
         "response" : {
           "$ref" : "MyBean"
         }

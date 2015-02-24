@@ -119,15 +119,6 @@ public class YourFirstAPI {
 		
 		GoogleDriveHelper goog = new GoogleDriveHelper();
 		
-		//try this with the service account
-		try {
-			token = goog.getServiceAccoutAccessToken();
-			System.out.println("Service Account access_token: " + token);
-		} catch (GeneralSecurityException | IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
 		//return timecard;
 		File folder = new File();
 		File subfolder = new File();
@@ -207,6 +198,29 @@ public class YourFirstAPI {
 		}
 
 		timecard.days.add(day);
+	}
+	
+	/**
+	 * This endpoint makes up Harvest data
+	 * 
+	 * @throws ParseException
+	 */
+	@ApiMethod(name = "serviceAccountToken")
+	public MyBean serviceAccountToken() 
+	{
+		String token = "";
+		//try this with the service account
+		try {
+			token = new GoogleDriveHelper().getServiceAccoutAccessToken();
+			System.out.println("Service Account access_token: " + token);
+		} catch (GeneralSecurityException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		MyBean response = new MyBean();
+		response.setData(token);
+		return response;
 	}
 
 }
