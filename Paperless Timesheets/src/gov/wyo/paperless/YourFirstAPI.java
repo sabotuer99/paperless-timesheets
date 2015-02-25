@@ -7,9 +7,6 @@ import java.util.Calendar;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
-import com.google.appengine.labs.repackaged.org.json.JSONException;
-import com.google.appengine.labs.repackaged.org.json.JSONObject;
-import com.google.appengine.labs.repackaged.org.json.JSONTokener;
 import com.google.api.services.drive.model.File;
 import com.google.gdata.data.spreadsheet.WorksheetEntry;
 import com.google.gdata.util.ServiceException;
@@ -59,7 +56,7 @@ public class YourFirstAPI {
 			@Named("year") int year) 
 	{
 
-		String email = validateEmailFromToken(token);
+		String email = new GoogleHelper().validateEmailFromToken(token);
 		Timecard timecard = generateFakeTimecard(email, month, year);
 		
 		return timecard;
@@ -78,7 +75,7 @@ public class YourFirstAPI {
 	{
 
 		File sheet = new File();
-		GoogleDriveHelper goog = new GoogleDriveHelper();
+		GoogleHelper goog = new GoogleHelper();
 		WorksheetEntry worksheet = new WorksheetEntry();
 		
 		//Create a new spreadsheet
@@ -112,27 +109,22 @@ public class YourFirstAPI {
 	public MyBean dummyGoogleFolder(
 			@Named("token") String token, 
 			@Named("month") int month, 
-			@Named("year") int year) throws GeneralSecurityException 
+			@Named("year") int year) throws GeneralSecurityException, IOException 
 	{
 
 		//String email = validateEmailFromToken(token);
 		//Timecard timecard = generateFakeTimecard(email, month, year);
 		
-		GoogleDriveHelper goog = new GoogleDriveHelper();
+		GoogleHelper goog = new GoogleHelper();
 		
 		//return timecard;
 		File folder = new File();
 		File subfolder = new File();
 		File sharedsubfolder = new File();
 		
-		try {
-			folder = goog.createNewFolder(token, "");
-			subfolder = goog.createNewFolder(token, folder.getId());
-			sharedsubfolder = goog.createNewFolder(token, "0BxN4AmtAyCpGfkU3YW9DMXQ3VGY2X2xHNHYycUZOQnRRbEdBVDhvRzVPcDhIYTRVck5oMkk");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		folder = goog.createNewFolder(token, "");
+		subfolder = goog.createNewFolder(token, folder.getId());
+		sharedsubfolder = goog.createNewFolder(token, "0BxN4AmtAyCpGfkU3YW9DMXQ3VGY2X2xHNHYycUZOQnRRbEdBVDhvRzVPcDhIYTRVck5oMkk");
 
 		MyBean result = new MyBean();
 		result.setData(folder.getId() + " | " + subfolder.getId() + " | " + sharedsubfolder.getId());
@@ -156,25 +148,7 @@ public class YourFirstAPI {
 		return timecard;
 	}
 
-	private String validateEmailFromToken(String token) {
-		String validateToken = new HttpHelper().excutePost(
-				"https://www.googleapis.com/oauth2/v1/tokeninfo?access_token="
-						+ token, "");
-		String email = "";
 
-		try {
-			JSONObject json = new JSONObject(new JSONTokener(validateToken));
-
-			if (json.has("email")) {
-				email = json.getString("email");
-			}
-
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return email;
-	}
 
 	private void addFakeTimecardDay(Timecard timecard, Calendar calendar) {
 		TimecardDay day = new TimecardDay();
@@ -212,7 +186,7 @@ public class YourFirstAPI {
 		String token = "";
 		//try this with the service account
 		try {
-			token = new GoogleDriveHelper().getServiceAccoutAccessToken().toString();
+			token = new GoogleHelper().getServiceAccountCredential().toString();
 			System.out.println("Service Account access_token: " + token);
 		} catch (GeneralSecurityException | IOException e1) {
 			// TODO Auto-generated catch block
