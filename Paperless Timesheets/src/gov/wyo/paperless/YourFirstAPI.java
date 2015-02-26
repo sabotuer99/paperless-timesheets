@@ -36,7 +36,7 @@ public class YourFirstAPI {
 
 		String targetURL = "";
 		String urlParameters = "";
-		String harvestData = new HttpHelper().excutePost(targetURL,
+		String harvestData = new HttpHelper().executePost(targetURL,
 				urlParameters);
 
 		MyBean response = new MyBean();
@@ -193,6 +193,16 @@ public class YourFirstAPI {
 		
 		MyBean response = new MyBean();
 		response.setData(token);
+		return response;
+	}
+	
+	@ApiMethod(name = "findFolderId")
+	public MyBean findFolderId(@Named("folderName") String folderName, @Named("accessToken") String accessToken)
+	{
+		String id = new GoogleHelper().findFolderId(accessToken, folderName);
+		
+		MyBean response = new MyBean();
+		response.setData(id);
 		return response;
 	}
 

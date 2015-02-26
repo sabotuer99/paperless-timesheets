@@ -4,8 +4,11 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
@@ -16,6 +19,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -313,7 +317,7 @@ public class GoogleHelper {
 	}
 
 	public String validateEmailFromToken(String token) {
-		String validateToken = new HttpHelper().excutePost(
+		String validateToken = new HttpHelper().executePost(
 				"https://www.googleapis.com/oauth2/v1/tokeninfo?access_token="
 						+ token, "");
 		String email;
@@ -334,4 +338,47 @@ public class GoogleHelper {
 		return email;
 	}
 
+	public String findFolderId(String accessToken, String folderName){
+		String query;
+		try {
+			folderName = URLDecoder.decode(folderName, "UTF-8");
+			query = URLEncoder.encode("mimeType = 'application/vnd.google-apps.folder' and title = '" + folderName + "'", "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			//query should be such that the result is empty
+			query = new Random().toString();
+			e.printStackTrace();
+		}
+		
+		String url = "https://www.googleapis.com/drive/v2/files?access_token="
+				+ accessToken + "&q=" + query;
+		
+		String fileList = "";
+		for (int i = 0; fileList == "" && i < 5; i++) {
+			try {
+				fileList = new HttpHelper().sendGet(url);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}	
+		System.out.print(fileList);
+		
+		
+		String id;
+
+		try {
+			JSONObject json = new JSONObject(new JSONTokener(fileList));
+
+			if (json.has("items") && json.getJSONArray("items").length() > 0) {
+				id = json.getJSONArray("items").getJSONObject(0).getString("id");
+			} else {
+				id = "";
+			}
+
+		} catch (JSONException e) {
+			id = "";
+			e.printStackTrace();
+		}
+		
+		return id;
+	}
 }
