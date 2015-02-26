@@ -148,8 +148,6 @@ public class YourFirstAPI {
 		return timecard;
 	}
 
-
-
 	private void addFakeTimecardDay(Timecard timecard, Calendar calendar) {
 		TimecardDay day = new TimecardDay();
 
@@ -186,7 +184,7 @@ public class YourFirstAPI {
 		String token = "";
 		//try this with the service account
 		try {
-			token = new GoogleHelper().getServiceAccountCredential().toString();
+			token = new GoogleHelper().getServiceAccountCredential().getAccessToken();
 			System.out.println("Service Account access_token: " + token);
 		} catch (GeneralSecurityException | IOException e1) {
 			// TODO Auto-generated catch block
