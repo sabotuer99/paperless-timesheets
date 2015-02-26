@@ -1,13 +1,21 @@
 package gov.wyo.paperless;
 
+import gov.wyo.paperless.GoogleHelper.AccountTypes;
+import gov.wyo.paperless.GoogleHelper.FileRoles;
+
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
+import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
+import com.google.gdata.client.spreadsheet.SpreadsheetService;
+import com.google.gdata.data.spreadsheet.SpreadsheetEntry;
 import com.google.gdata.data.spreadsheet.WorksheetEntry;
 import com.google.gdata.util.ServiceException;
 
@@ -203,6 +211,85 @@ public class YourFirstAPI {
 		
 		MyBean response = new MyBean();
 		response.setData(id);
+		return response;
+	}
+	
+	@ApiMethod(name = "submitTimecard")
+	public MyBean submitTimecard(@Named("month") Integer month, @Named("year") Integer year, @Named("accessToken") String accessToken)
+	{
+		GoogleHelper goog = new GoogleHelper();
+		
+		//get email from token
+		String email = goog.validateEmailFromToken(accessToken);		
+		
+		//get service account credential
+		GoogleCredential serviceCred;
+		try {
+			serviceCred = goog.getServiceAccountCredential();
+		} catch (GeneralSecurityException | IOException e) {
+			serviceCred = null;
+			e.printStackTrace();
+		}
+		
+		//get drive service with service account
+		Drive drive = goog.getDriveService(serviceCred);
+		
+		//find or create root folder
+		//if new, share with group
+		String rootFolderTitle = "Timecards";
+		String rootFolderId = goog.findFolderId(serviceCred.getAccessToken(), rootFolderTitle, null);
+		if(rootFolderId == ""){
+			rootFolderId = goog.createNewDriveFolder(drive, rootFolderTitle, null).getId();
+			goog.insertPermission(drive, rootFolderId, "paperless-timesheet-test@googlegroups.com", AccountTypes.group, FileRoles.writer);
+		}
+		
+		//find or create year folder
+		//if new, share with group
+		String yearFolderTitle = year.toString();
+		String yearFolderId = goog.findFolderId(serviceCred.getAccessToken(), yearFolderTitle, rootFolderId);
+		if(yearFolderId == ""){
+			yearFolderId = goog.createNewDriveFolder(drive, yearFolderTitle, rootFolderId).getId();
+			goog.insertPermission(drive, yearFolderId, "paperless-timesheet-test@googlegroups.com", AccountTypes.group, FileRoles.writer);
+		}
+		
+		//find or create month folder
+		//if new, share with group
+		Calendar cal = Calendar.getInstance();
+		cal.set(year, month, 1);
+		String monthFolderTitle = new SimpleDateFormat("MMMM").format(cal.getTime());
+		String monthFolderId = goog.findFolderId(serviceCred.getAccessToken(), monthFolderTitle, yearFolderId);
+		if(monthFolderId == ""){
+			monthFolderId = goog.createNewDriveFolder(drive, monthFolderTitle, yearFolderId).getId();
+			goog.insertPermission(drive, monthFolderId, "paperless-timesheet-test@googlegroups.com", AccountTypes.group, FileRoles.writer);
+		}
+		
+		//find and delete existing timecard sheet file
+		String timesheetId = goog.findSheetId(serviceCred.getAccessToken(), email, monthFolderId);
+		if(timesheetId != null && timesheetId.length() > 0){
+			goog.deleteFile(drive, timesheetId);
+		}			
+		
+		//create new sheet file
+		//share with group and supervisor
+		String timesheetTitle = email + "_(Pending)";
+		timesheetId = goog.createNewDriveSheet(drive, timesheetTitle, monthFolderId, 
+				"Date,Work Hours,Annual,Sick,Holiday,Other Leave,Comp Used,Reported Hours, OT Earned, ST Hours,Shift Diff, On Call,Base,Callback").getId();
+		goog.insertPermission(drive, timesheetId, "paperless-timesheet-test@googlegroups.com", AccountTypes.group, FileRoles.writer);
+		goog.insertPermission(drive, timesheetId, email, AccountTypes.user, FileRoles.commenter);
+		
+		//get timecard data
+		Timecard timecard = generateFakeTimecard(email, month, year);
+		
+		//insert data rows into worksheet
+		SpreadsheetService service = goog.getServiceAccountSpreadsheetService();
+		SpreadsheetEntry timecardSheet = goog.getSpreadsheetFromFileId(timesheetId, service);
+		WorksheetEntry worksheet = goog.getDefaultWorksheet(service, timecardSheet);
+		for (TimecardDay day : timecard.days) {
+			goog.insertListRow(worksheet, service, day.getDayData());		
+		}
+		
+		MyBean response = new MyBean();
+		response.setData("Success");
 		return response;
 	}
 

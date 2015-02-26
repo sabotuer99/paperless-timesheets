@@ -86,6 +86,7 @@ public class GoogleHelper {
 
 	public WorksheetEntry updateTestWorksheet(File sheetFile, String accessToken)
 			throws IOException, ServiceException, MalformedURLException {
+
 		GoogleCredential credential = new GoogleCredential()
 				.setAccessToken(accessToken);
 		SpreadsheetService service = getSpreadsheetService(credential);
@@ -97,10 +98,7 @@ public class GoogleHelper {
 		// Get the first worksheet of the first spreadsheet.
 		// Choose a worksheet more intelligently based on your
 		// app's needs.
-		WorksheetFeed worksheetFeed = service.getFeed(
-				spreadsheet.getWorksheetFeedUrl(), WorksheetFeed.class);
-		List<WorksheetEntry> worksheets = worksheetFeed.getEntries();
-		WorksheetEntry worksheet = worksheets.get(0);
+		WorksheetEntry worksheet = getDefaultWorksheet(service, spreadsheet);
 
 		// Update the local representation of the worksheet.
 		worksheet.setTitle(new PlainTextConstruct("Updated Worksheet"));
@@ -114,23 +112,37 @@ public class GoogleHelper {
 		return worksheet;
 	}
 
-	public ListEntry insertListRow(WorksheetEntry worksheet,
-			SpreadsheetService service, HashMap<String, String> rowValues)
-			throws IOException, ServiceException {
+	public WorksheetEntry getDefaultWorksheet(SpreadsheetService service, SpreadsheetEntry spreadsheet) {
+		WorksheetEntry worksheet;
+		try {
+			WorksheetFeed worksheetFeed = service.getFeed( spreadsheet.getWorksheetFeedUrl(), WorksheetFeed.class);
+			List<WorksheetEntry> worksheets = worksheetFeed.getEntries();
+			worksheet = worksheets.get(0);
+		} catch (IOException | ServiceException e) {
+			worksheet = null;
+			e.printStackTrace();
+		}
+		return worksheet;
+	}
 
-		// Fetch the list feed of the worksheet.
-		URL listFeedUrl = worksheet.getListFeedUrl();
+	public ListEntry insertListRow(WorksheetEntry worksheet, SpreadsheetService service, HashMap<String, String> rowValues){
 
 		// Create a local representation of the new row.
-		ListEntry row = new ListEntry();
+		ListEntry row = new ListEntry();;
+		try {
+			// Fetch the list feed of the worksheet.
+			URL listFeedUrl = worksheet.getListFeedUrl();
 
-		for (String key : rowValues.keySet()) {
-			String value = rowValues.get(key);
-			row.getCustomElements().setValueLocal(key, value);
+			for (String key : rowValues.keySet()) {
+				String value = rowValues.get(key);
+				row.getCustomElements().setValueLocal(key, value);
+			}
+			// Send the new row to the API for insertion.
+			row = service.insert(listFeedUrl, row);
+		} catch (IOException | ServiceException e) {
+			e.printStackTrace();
 		}
-		// Send the new row to the API for insertion.
-		row = service.insert(listFeedUrl, row);
-		return null;
+		return row;
 	}
 
 	public File createNewDriveFile(Drive drive, String title,
@@ -169,6 +181,14 @@ public class GoogleHelper {
 		return sheet;
 	}
 
+	public File createNewDriveFolder(Drive drive, String title,	String parentId){
+		return createNewDriveFile(drive, title, "application/vnd.google-apps.folder", "application/json", "", parentId, false);
+	}
+	
+	public File createNewDriveSheet(Drive drive, String title,	String parentId, String csvContent){
+		return createNewDriveFile(drive, title, "application/vnd.google-apps.spreadsheet", "text/csv", csvContent, parentId, true);
+	}
+	
 	public Drive getDriveService(GoogleCredential credential) {
 		HttpTransport transport;
 		try {
@@ -191,29 +211,45 @@ public class GoogleHelper {
 		URL SPREADSHEET_FEED_URL = new URL(Constants.SPREADSHEET_FEED);
 
 		// Make a request to the API and get all spreadsheets.
-		SpreadsheetFeed feed = service.getFeed(SPREADSHEET_FEED_URL, SpreadsheetFeed.class);
+		SpreadsheetFeed feed = service.getFeed(SPREADSHEET_FEED_URL,
+				SpreadsheetFeed.class);
 		List<SpreadsheetEntry> spreadsheets = feed.getEntries();
 		return spreadsheets;
 	}
-	
-	public SpreadsheetEntry getNewestSpreadsheetFromTitle(SpreadsheetService service, String title){
+
+	public SpreadsheetEntry getNewestSpreadsheetFromTitle(
+			SpreadsheetService service, String title) {
 		return getSpreadsheetsFromQuery(service, "title", title).get(0);
 	}
+
+	public SpreadsheetEntry getSpreadsheetFromFileId(String fileId, SpreadsheetService service){
+		SpreadsheetEntry entry;
+		try {
+			URL entryUrl = new URL(Constants.SPREADSHEET_FEED + "/" + fileId);
+			entry = service.getEntry(entryUrl, SpreadsheetEntry.class);
+		} catch (IOException | ServiceException e) {
+			entry = null;
+			e.printStackTrace();
+		}
+		return entry;
+	}
 	
-	public List<SpreadsheetEntry> getSpreadsheetsFromQuery(SpreadsheetService service, String field, String key){
+	public List<SpreadsheetEntry> getSpreadsheetsFromQuery(
+			SpreadsheetService service, String field, String key) {
 		// Define the URL to request. Append the query string
 		URL SPREADSHEET_FEED_URL;
 		SpreadsheetFeed feed;
 		List<SpreadsheetEntry> spreadsheets;
 		try {
-			SPREADSHEET_FEED_URL = new URL(Constants.SPREADSHEET_FEED + "?" + field + "=" + key);
+			SPREADSHEET_FEED_URL = new URL(Constants.SPREADSHEET_FEED + "?"
+					+ field + "=" + key);
 			feed = service.getFeed(SPREADSHEET_FEED_URL, SpreadsheetFeed.class);
 			spreadsheets = feed.getEntries();
 		} catch (IOException | ServiceException e) {
 			spreadsheets = null;
 			e.printStackTrace();
-		}		
-		
+		}
+
 		return spreadsheets;
 	}
 
@@ -243,7 +279,7 @@ public class GoogleHelper {
 	 *            Drive API service instance.
 	 * @param fileId
 	 *            ID of the file to insert permission for.
-	 * @param value
+	 * @param targetId
 	 *            User or group e-mail address, domain name or {@code null}
 	 *            "default" type.
 	 * @param type
@@ -253,12 +289,20 @@ public class GoogleHelper {
 	 * @return The inserted permission if successful, {@code null} otherwise.
 	 */
 	public Permission insertPermission(Drive service, String fileId,
-			String value, AccountTypes type, FileRoles role) {
+			String targetId, AccountTypes type, FileRoles role) {
 		Permission newPermission = new Permission();
 
-		newPermission.setValue(value);
+		newPermission.setValue(targetId);
 		newPermission.setType(type.toString());
-		newPermission.setRole(role.toString());
+		
+		if (role == FileRoles.commenter) {
+			ArrayList<String> additionalRoles = new ArrayList<String>();
+			additionalRoles.add(role.toString());
+			newPermission.setAdditionalRoles(additionalRoles);
+		} else {
+			newPermission.setRole(role.toString());
+		}
+
 		try {
 			return service.permissions().insert(fileId, newPermission)
 					.execute();
@@ -297,7 +341,7 @@ public class GoogleHelper {
 				// .setServiceAccountUser("troy.whorten@wyo.gov")
 				.build();
 
-		credential.refreshToken();		
+		credential.refreshToken();
 		return credential;
 	}
 
@@ -313,6 +357,7 @@ public class GoogleHelper {
 	}
 
 	public File createNewServiceAcccountSheet() {
+		// TODO fill in the code!
 		return null;
 	}
 
@@ -338,20 +383,41 @@ public class GoogleHelper {
 		return email;
 	}
 
-	public String findFolderId(String accessToken, String folderName){
+	public String findFolderId(String accessToken, String folderName) {
+		return findFolderId(accessToken, folderName, null);
+	}
+	
+	public String findFolderId(String accessToken, String folderName, String parentId){
+		return findFileId(accessToken, folderName, parentId, "application/vnd.google-apps.folder", true );
+	}
+	
+	public String findSheetId(String accessToken, String fileName, String parentId){
+		return findFileId(accessToken, fileName, parentId, "application/vnd.google-apps.spreadsheet", false);
+	}
+	
+	public String findFileId(String accessToken, String fileName, String parentId, String mimeType, boolean exactTitle) {
 		String query;
 		try {
-			folderName = URLDecoder.decode(folderName, "UTF-8");
-			query = URLEncoder.encode("mimeType = 'application/vnd.google-apps.folder' and title = '" + folderName + "'", "UTF-8");
+			String titlePredicate = exactTitle ? "=" : "contains" ;
+			fileName = URLDecoder.decode(fileName, "UTF-8");
+			String queryUnencoded = "mimeType = '"+ mimeType + "' and title " + titlePredicate + " '" + fileName + "'";
+			
+			if(parentId != null && parentId.length() > 0){
+				queryUnencoded += " and '"+ parentId +"' in parents";
+			}			
+			
+			query = URLEncoder.encode(queryUnencoded, "UTF-8");
+			
+			
 		} catch (UnsupportedEncodingException e) {
-			//query should be such that the result is empty
+			// query should be such that the result is empty
 			query = new Random().toString();
 			e.printStackTrace();
 		}
-		
+
 		String url = "https://www.googleapis.com/drive/v2/files?access_token="
 				+ accessToken + "&q=" + query;
-		
+
 		String fileList = "";
 		for (int i = 0; fileList == "" && i < 5; i++) {
 			try {
@@ -359,17 +425,17 @@ public class GoogleHelper {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}	
+		}
 		System.out.print(fileList);
-		
-		
+
 		String id;
 
 		try {
 			JSONObject json = new JSONObject(new JSONTokener(fileList));
 
 			if (json.has("items") && json.getJSONArray("items").length() > 0) {
-				id = json.getJSONArray("items").getJSONObject(0).getString("id");
+				id = json.getJSONArray("items").getJSONObject(0)
+						.getString("id");
 			} else {
 				id = "";
 			}
@@ -378,7 +444,35 @@ public class GoogleHelper {
 			id = "";
 			e.printStackTrace();
 		}
-		
+
 		return id;
 	}
+
+	public void deleteAllWorksheetRows(WorksheetEntry worksheet, SpreadsheetService service) {
+			
+		try {
+
+			URL listFeedUrl = worksheet.getListFeedUrl();
+			ListFeed listFeed  = service.getFeed(listFeedUrl, ListFeed.class);
+			for (int i = 0; i < listFeed.getEntries().size(); i++) {
+				ListEntry row = listFeed.getEntries().get(i);
+				row.delete();
+			}		
+
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		}
+
+	}
+
+	public void deleteFile(Drive drive, String fileId){
+		try {
+			drive.files().delete(fileId);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 }

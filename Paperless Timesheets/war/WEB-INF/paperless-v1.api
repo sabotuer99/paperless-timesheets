@@ -126,6 +126,35 @@
         "body" : "autoTemplate(backendResponse)"
       }
     },
+    "paperless.submitTimecard" : {
+      "path" : "submitTimecard/{month}/{year}/{accessToken}",
+      "httpMethod" : "POST",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "gov.wyo.paperless.YourFirstAPI.submitTimecard",
+      "request" : {
+        "parameters" : {
+          "month" : {
+            "type" : "int32",
+            "required" : true
+          },
+          "year" : {
+            "type" : "int32",
+            "required" : true
+          },
+          "accessToken" : {
+            "type" : "string",
+            "required" : true
+          }
+        },
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    },
     "paperless.serviceAccountToken" : {
       "path" : "serviceAccountToken",
       "httpMethod" : "POST",
@@ -259,8 +288,15 @@
           },
           "stHours" : {
             "type" : "number"
+          },
+          "dayData" : {
+            "$ref" : "JsonMap"
           }
         }
+      },
+      "JsonMap" : {
+        "id" : "JsonMap",
+        "type" : "object"
       },
       "MyBean" : {
         "id" : "MyBean",
@@ -289,6 +325,11 @@
         }
       },
       "gov.wyo.paperless.YourFirstAPI.timecard" : {
+        "response" : {
+          "$ref" : "MyBean"
+        }
+      },
+      "gov.wyo.paperless.YourFirstAPI.submitTimecard" : {
         "response" : {
           "$ref" : "MyBean"
         }
