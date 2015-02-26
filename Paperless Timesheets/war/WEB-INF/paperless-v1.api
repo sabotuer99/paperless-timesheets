@@ -288,15 +288,8 @@
           },
           "stHours" : {
             "type" : "number"
-          },
-          "dayData" : {
-            "$ref" : "JsonMap"
           }
         }
-      },
-      "JsonMap" : {
-        "id" : "JsonMap",
-        "type" : "object"
       },
       "MyBean" : {
         "id" : "MyBean",

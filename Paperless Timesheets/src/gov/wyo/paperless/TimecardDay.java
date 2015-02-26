@@ -5,22 +5,23 @@ import java.util.HashMap;
 
 public class TimecardDay {
 	private Date date;
-	private Double workHours;
-	private Double holiday;
-	private Double sick;
-	private Double annual;
-	private Double otherLeave;
-	private Double compUsed;
-	private Double shiftDiff;
-	private Double onCall;
-	private Double base;
-	private Double callback;
-	private Double reportedHours;
-	private Double otEarned;
-	private Double stHours;
-	private HashMap<String, String> dayData;
+	private Double workHours = 0.0;
+	private Double holiday = 0.0;
+	private Double sick = 0.0;
+	private Double annual = 0.0;
+	private Double otherLeave = 0.0;
+	private Double compUsed = 0.0;
+	private Double shiftDiff = 0.0;
+	private Double onCall = 0.0;
+	private Double base = 0.0;
+	private Double callback = 0.0;
+	private Double reportedHours = 0.0;
+	private Double otEarned = 0.0;
+	private Double stHours = 0.0;
 	
-	public HashMap<String, String> getDayData(){
+	public HashMap<String, String> generateDayData(){
+		HashMap<String, String> dayData = new HashMap<String, String>();
+		
 		dayData.put("Date", date.toString());
 		dayData.put("Work Hours", workHours.toString());
 		dayData.put("Annual", annual.toString());

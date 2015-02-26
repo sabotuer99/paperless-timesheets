@@ -255,7 +255,7 @@ public class YourFirstAPI {
 		//find or create month folder
 		//if new, share with group
 		Calendar cal = Calendar.getInstance();
-		cal.set(year, month, 1);
+		cal.set(year, month - 1, 1);
 		String monthFolderTitle = new SimpleDateFormat("MMMM").format(cal.getTime());
 		String monthFolderId = goog.findFolderId(serviceCred.getAccessToken(), monthFolderTitle, yearFolderId);
 		if(monthFolderId == ""){
@@ -285,7 +285,7 @@ public class YourFirstAPI {
 		SpreadsheetEntry timecardSheet = goog.getSpreadsheetFromFileId(timesheetId, service);
 		WorksheetEntry worksheet = goog.getDefaultWorksheet(service, timecardSheet);
 		for (TimecardDay day : timecard.days) {
-			goog.insertListRow(worksheet, service, day.getDayData());		
+			goog.insertListRow(worksheet, service, day.generateDayData());		
 		}
 		
 		MyBean response = new MyBean();

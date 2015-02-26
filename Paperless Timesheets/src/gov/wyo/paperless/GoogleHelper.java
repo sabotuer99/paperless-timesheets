@@ -298,6 +298,7 @@ public class GoogleHelper {
 		if (role == FileRoles.commenter) {
 			ArrayList<String> additionalRoles = new ArrayList<String>();
 			additionalRoles.add(role.toString());
+			newPermission.setRole(FileRoles.reader.toString());
 			newPermission.setAdditionalRoles(additionalRoles);
 		} else {
 			newPermission.setRole(role.toString());
@@ -376,7 +377,7 @@ public class GoogleHelper {
 				email = "";
 			}
 
-		} catch (JSONException e) {
+		} catch (Exception e) {
 			email = "";
 			e.printStackTrace();
 		}
