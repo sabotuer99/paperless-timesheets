@@ -80,7 +80,7 @@ public class YourFirstAPI {
 		
 		//Create a new spreadsheet
 		try {
-			sheet = goog.createNewSheet(token);
+			sheet = goog.createNewTestSheet(token);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -88,7 +88,7 @@ public class YourFirstAPI {
 
 		//Update the default worksheet
 		try {
-			worksheet = goog.updateWorksheet(sheet, token);
+			worksheet = goog.updateTestWorksheet(sheet, token);
 		} catch (IOException | ServiceException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -122,9 +122,9 @@ public class YourFirstAPI {
 		File subfolder = new File();
 		File sharedsubfolder = new File();
 		
-		folder = goog.createNewFolder(token, "");
-		subfolder = goog.createNewFolder(token, folder.getId());
-		sharedsubfolder = goog.createNewFolder(token, "0BxN4AmtAyCpGfkU3YW9DMXQ3VGY2X2xHNHYycUZOQnRRbEdBVDhvRzVPcDhIYTRVck5oMkk");
+		folder = goog.createNewTestFolder(token, "");
+		subfolder = goog.createNewTestFolder(token, folder.getId());
+		sharedsubfolder = goog.createNewTestFolder(token, "0BxN4AmtAyCpGfkU3YW9DMXQ3VGY2X2xHNHYycUZOQnRRbEdBVDhvRzVPcDhIYTRVck5oMkk");
 
 		MyBean result = new MyBean();
 		result.setData(folder.getId() + " | " + subfolder.getId() + " | " + sharedsubfolder.getId());

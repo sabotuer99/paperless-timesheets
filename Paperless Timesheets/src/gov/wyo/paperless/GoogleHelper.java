@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
@@ -50,7 +51,7 @@ public class GoogleHelper {
 		anyone
 	}
 	
-	public File createNewSheet(String accessToken) throws IOException{
+	public File createNewTestSheet(String accessToken) throws IOException{
 
 		GoogleCredential credential = new GoogleCredential().setAccessToken(accessToken);		
 	    SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
@@ -64,6 +65,70 @@ public class GoogleHelper {
 		
 		return createNewDriveFile(drive, title, metaMimeType, contentMimeType, content, null, true);
 		
+	}
+	
+	public File createNewTestFolder(String accessToken, String parentId){
+		
+		GoogleCredential credential = new GoogleCredential().setAccessToken(accessToken);			    
+		String title = "Test Folder";
+		String metaMimeType = "application/vnd.google-apps.folder";
+		String contentMimeType = "application/json";
+		String content = ",\n,";
+		Drive drive = getDriveService(credential);			
+		
+		if(parentId != null && !parentId.isEmpty())
+		{
+			title = "Test SubFolder";		
+		}
+		
+		return createNewDriveFile(drive, title, metaMimeType, contentMimeType, content, parentId, true);
+	}
+	
+	public WorksheetEntry updateTestWorksheet(File sheetFile, String accessToken) throws IOException, ServiceException, MalformedURLException
+	{	
+		GoogleCredential credential = new GoogleCredential().setAccessToken(accessToken);		
+		SpreadsheetService service = getSpreadsheetService(credential);			
+		List<SpreadsheetEntry> spreadsheets = getAllSpreadsheets(service);	
+		
+		SpreadsheetEntry spreadsheet = spreadsheets.get(0);
+		System.out.println(spreadsheet.getTitle().getPlainText());
+	    
+		// Get the first worksheet of the first spreadsheet.
+	    // TODO: Choose a worksheet more intelligently based on your
+	    // app's needs.
+	    WorksheetFeed worksheetFeed = service.getFeed(
+	        spreadsheet.getWorksheetFeedUrl(), WorksheetFeed.class);
+	    List<WorksheetEntry> worksheets = worksheetFeed.getEntries();
+	    WorksheetEntry worksheet = worksheets.get(0);
+
+	    // Update the local representation of the worksheet.
+	    worksheet.setTitle(new PlainTextConstruct("Updated Worksheet"));
+	    worksheet.setColCount(5);
+	    worksheet.setRowCount(15);
+
+	    // Send the local representation of the worksheet to the API for
+	    // modification.
+	    worksheet.update();
+	    
+		return worksheet;
+	}
+	
+	public ListEntry insertListRow(WorksheetEntry worksheet, SpreadsheetService service, HashMap<String, String> rowValues) throws IOException, ServiceException {
+		
+		// Fetch the list feed of the worksheet.
+	    URL listFeedUrl = worksheet.getListFeedUrl();
+
+	    // Create a local representation of the new row.
+	    ListEntry row = new ListEntry();
+	    
+	    for (String key : rowValues.keySet())
+	    {
+	    	String value = rowValues.get( key );
+	    	row.getCustomElements().setValueLocal(key, value);
+	    }
+	    // Send the new row to the API for insertion.
+	    row = service.insert(listFeedUrl, row); 
+	    return null;
 	}
 	
 	public File createNewDriveFile(Drive drive, String title, String metaMimeType, String contentMimeType, String content, String parentId, boolean doConvert){	
@@ -119,53 +184,6 @@ public class GoogleHelper {
 		return drive;
 	}
 	
-	public File createNewFolder(String accessToken, String parentId){
-		
-		GoogleCredential credential = new GoogleCredential().setAccessToken(accessToken);			    
-		String title = "Test Folder";
-		String metaMimeType = "application/vnd.google-apps.folder";
-		String contentMimeType = "application/json";
-		String content = ",\n,";
-		Drive drive = getDriveService(credential);			
-		
-		if(parentId != null && !parentId.isEmpty())
-		{
-			title = "Test SubFolder";		
-		}
-		
-		return createNewDriveFile(drive, title, metaMimeType, contentMimeType, content, parentId, true);
-	}
-	
-	public WorksheetEntry updateWorksheet(File sheetFile, String accessToken) throws IOException, ServiceException, MalformedURLException
-	{	
-		GoogleCredential credential = new GoogleCredential().setAccessToken(accessToken);		
-		SpreadsheetService service = getSpreadsheetService(credential);	
-		
-		List<SpreadsheetEntry> spreadsheets = getAllSpreadsheets(service);	
-		
-		SpreadsheetEntry spreadsheet = spreadsheets.get(0);
-		System.out.println(spreadsheet.getTitle().getPlainText());
-	    
-		// Get the first worksheet of the first spreadsheet.
-	    // TODO: Choose a worksheet more intelligently based on your
-	    // app's needs.
-	    WorksheetFeed worksheetFeed = service.getFeed(
-	        spreadsheet.getWorksheetFeedUrl(), WorksheetFeed.class);
-	    List<WorksheetEntry> worksheets = worksheetFeed.getEntries();
-	    WorksheetEntry worksheet = worksheets.get(0);
-
-	    // Update the local representation of the worksheet.
-	    worksheet.setTitle(new PlainTextConstruct("Updated Worksheet"));
-	    worksheet.setColCount(5);
-	    worksheet.setRowCount(15);
-
-	    // Send the local representation of the worksheet to the API for
-	    // modification.
-	    worksheet.update();
-	    
-		return worksheet;
-	}
-
 	public List<SpreadsheetEntry> getAllSpreadsheets(SpreadsheetService service)
 			throws MalformedURLException, IOException, ServiceException {
 		// Define the URL to request.  This should never change.
@@ -209,8 +227,7 @@ public class GoogleHelper {
 	   * @param role The value "owner", "writer" or "reader".
 	   * @return The inserted permission if successful, {@code null} otherwise.
 	   */
- 	public Permission insertPermission(Drive service, String fileId,
-	      String value, AccountTypes type, FileRoles role) {
+ 	public Permission insertPermission(Drive service, String fileId, String value, AccountTypes type, FileRoles role) {
 	    Permission newPermission = new Permission();
 
 	    newPermission.setValue(value);
@@ -287,4 +304,5 @@ public class GoogleHelper {
 		}
 		return email;
 	}
+
 }
