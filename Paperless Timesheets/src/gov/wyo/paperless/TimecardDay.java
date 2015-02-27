@@ -1,7 +1,9 @@
 package gov.wyo.paperless;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class TimecardDay {
 	private Date date;
@@ -19,10 +21,14 @@ public class TimecardDay {
 	private Double otEarned = 0.0;
 	private Double stHours = 0.0;
 	
-	public HashMap<String, String> generateDayData(){
-		HashMap<String, String> dayData = new HashMap<String, String>();
+	public LinkedHashMap<String, String> generateDayData(){
+		LinkedHashMap<String, String> dayData = new LinkedHashMap<String, String>();
 		
-		dayData.put("Date", date.toString());
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		String formattedDate = new SimpleDateFormat("EEE,   MMM d").format(cal.getTime());	 
+		
+		dayData.put("Date", formattedDate);
 		dayData.put("Work Hours", workHours.toString());
 		dayData.put("Annual", annual.toString());
 		dayData.put("Sick", sick.toString());

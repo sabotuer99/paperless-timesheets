@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
@@ -18,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -35,7 +35,6 @@ import com.google.appengine.labs.repackaged.org.json.JSONException;
 import com.google.appengine.labs.repackaged.org.json.JSONObject;
 import com.google.appengine.labs.repackaged.org.json.JSONTokener;
 import com.google.gdata.client.spreadsheet.*;
-import com.google.gdata.data.*;
 import com.google.gdata.data.spreadsheet.*;
 import com.google.gdata.util.*;
 
@@ -100,16 +99,23 @@ public class GoogleHelper {
 		// app's needs.
 		WorksheetEntry worksheet = getDefaultWorksheet(service, spreadsheet);
 
+		changeWorksheetDimensions(worksheet, 5, 15);
+
+		return worksheet;
+	}
+
+	public void changeWorksheetDimensions(WorksheetEntry worksheet, Integer colCount, Integer rowCount){
 		// Update the local representation of the worksheet.
-		worksheet.setTitle(new PlainTextConstruct("Updated Worksheet"));
-		worksheet.setColCount(5);
-		worksheet.setRowCount(15);
+		worksheet.setColCount(colCount);
+		worksheet.setRowCount(rowCount);
 
 		// Send the local representation of the worksheet to the API for
 		// modification.
-		worksheet.update();
-
-		return worksheet;
+		try {
+			worksheet.update();
+		} catch (IOException | ServiceException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public WorksheetEntry getDefaultWorksheet(SpreadsheetService service, SpreadsheetEntry spreadsheet) {
@@ -125,6 +131,7 @@ public class GoogleHelper {
 		return worksheet;
 	}
 
+	//this doesn't seem to work...
 	public ListEntry insertListRow(WorksheetEntry worksheet, SpreadsheetService service, HashMap<String, String> rowValues){
 
 		// Create a local representation of the new row.
@@ -132,9 +139,12 @@ public class GoogleHelper {
 		try {
 			// Fetch the list feed of the worksheet.
 			URL listFeedUrl = worksheet.getListFeedUrl();
-
+			//System.out.print(listFeedUrl.toString());		
+			
 			for (String key : rowValues.keySet()) {
 				String value = rowValues.get(key);
+				key = key.replace(" ", "").toLowerCase();
+				//System.out.print(key + "|" + value + "\n");
 				row.getCustomElements().setValueLocal(key, value);
 			}
 			// Send the new row to the API for insertion.
@@ -142,9 +152,33 @@ public class GoogleHelper {
 		} catch (IOException | ServiceException e) {
 			e.printStackTrace();
 		}
+		System.out.print(row.toString() + "\n");
 		return row;
 	}
-
+	
+	public void updateRowCells(WorksheetEntry worksheet, SpreadsheetService service, Integer rowNumber, LinkedHashMap<String, String> cellValues){
+		
+	    try {
+	    	// Fetch the cell feed of the worksheet.
+		    URL cellFeedUrl = worksheet.getCellFeedUrl();
+			CellFeed cellFeed = service.getFeed(cellFeedUrl, CellFeed.class);
+			
+			ArrayList<String> keys = new ArrayList<String>(cellValues.keySet());
+		
+			for (CellEntry cell : cellFeed.getEntries()) {
+			    if(cell.getCell().getRow() == rowNumber){
+			    	String key = keys.get(cell.getCell().getCol());
+			    	String value = cellValues.get(key);
+			    	cell.changeInputValueLocal(value);
+			        cell.update();
+			    }
+			}		
+		} catch (IOException | ServiceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public File createNewDriveFile(Drive drive, String title,
 			String metaMimeType, String contentMimeType, String content,
 			String parentId, boolean doConvert) {
@@ -400,7 +434,7 @@ public class GoogleHelper {
 		String query;
 		try {
 			String titlePredicate = exactTitle ? "=" : "contains" ;
-			fileName = URLDecoder.decode(fileName, "UTF-8");
+			//fileName = URLDecoder.decode(fileName, "UTF-8");
 			String queryUnencoded = "mimeType = '"+ mimeType + "' and title " + titlePredicate + " '" + fileName + "'";
 			
 			if(parentId != null && parentId.length() > 0){
@@ -469,7 +503,7 @@ public class GoogleHelper {
 
 	public void deleteFile(Drive drive, String fileId){
 		try {
-			drive.files().delete(fileId);
+			drive.files().delete(fileId).execute();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
