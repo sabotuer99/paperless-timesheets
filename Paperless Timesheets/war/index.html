@@ -7,7 +7,7 @@
 <meta name="author" content="">
 <link rel="icon" href="../../favicon.ico">
 
-<title>Starter Template for Bootstrap</title>
+<title>Paperless Timecard Testsite</title>
 
 <!-- Bootstrap core CSS -->
 <link href="/assets/css/bootstrap.css" rel="stylesheet">
@@ -75,7 +75,14 @@
 				<option value="2014">2014</option>
 				<option value="2013">2013</option>
 			</select>
-			<button id="google" title="Get timecard using your Google account" class="btn btn-primary">Refresh Timecard</button>
+			<button id="google" title="Get timecard using your Google account" class="btn btn-primary">
+				Refresh Timecard
+				<img id="refreshLoader" alt="ajax loader" src="/assets/img/ajax-loader.gif" style="display:none;">
+			</button>
+			<button id="submit" title="Submit timecard for approval" class="btn btn-primary">
+				Submit Timecard
+				<img id="submitLoader" alt="ajax loader" src="/assets/img/ajax-loader.gif" style="display:none;">
+			</button>
 		</div>
 		<div class="table-responsive">
 			<label id="username" for="timecard"></label>

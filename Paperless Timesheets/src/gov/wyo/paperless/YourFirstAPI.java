@@ -208,9 +208,9 @@ public class YourFirstAPI {
 	}
 
 	@ApiMethod(name = "submitTimecard")
-	public MyBean submitTimecard(@Named("month") Integer month,
-			@Named("year") Integer year,
-			@Named("accessToken") String accessToken) {
+	public MyBean submitTimecard(@Named("accessToken") String accessToken,
+			@Named("month") Integer month,
+			@Named("year") Integer year) {
 		GoogleHelper goog = new GoogleHelper();
 		MyBean response = new MyBean();
 
@@ -286,7 +286,7 @@ public class YourFirstAPI {
 				}
 
 				// create new sheet file
-				// share with group and supervisor
+				// share with group and submitter
 				String timesheetTitle = email + "_(Pending)";
 				timesheetId = goog
 						.createNewDriveSheet(
@@ -299,8 +299,8 @@ public class YourFirstAPI {
 						"paperless-timesheet-test@googlegroups.com",
 						AccountTypes.group, FileRoles.writer);
 				// this works its just annoying...
-				// goog.insertPermission(drive, timesheetId, email,
-				// AccountTypes.user, FileRoles.commenter);
+				goog.insertPermission(drive, timesheetId, email,
+				        AccountTypes.user, FileRoles.commenter);
 
 				// get timecard data
 				Timecard timecard = generateFakeTimecard(email, month, year);
@@ -326,14 +326,14 @@ public class YourFirstAPI {
 						e.printStackTrace();
 					}
 				}
-				response.setData("Success");
+				response.setData("SUCCESS");
 
 			} else {
-				response.setData("Could not get email with access token");
+				response.setData("BADTOKEN");
 			}
 
 		} catch (Exception e) {
-			response.setData("Something went wrong, try again!");
+			response.setData("ERROR");
 			e.printStackTrace();
 		}
 

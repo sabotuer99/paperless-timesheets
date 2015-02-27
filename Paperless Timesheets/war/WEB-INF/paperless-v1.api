@@ -127,7 +127,7 @@
       }
     },
     "paperless.submitTimecard" : {
-      "path" : "submitTimecard/{month}/{year}/{accessToken}",
+      "path" : "submitTimecard/{accessToken}/{month}/{year}",
       "httpMethod" : "POST",
       "authLevel" : "NONE",
       "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
@@ -136,16 +136,16 @@
       "rosyMethod" : "gov.wyo.paperless.YourFirstAPI.submitTimecard",
       "request" : {
         "parameters" : {
+          "accessToken" : {
+            "type" : "string",
+            "required" : true
+          },
           "month" : {
             "type" : "int32",
             "required" : true
           },
           "year" : {
             "type" : "int32",
-            "required" : true
-          },
-          "accessToken" : {
-            "type" : "string",
             "required" : true
           }
         },
