@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class Timecard {
 	public String user = "";
+	public String submissionStatus = "";
 	public ArrayList<TimecardDay> days = new ArrayList<TimecardDay>();
 	public Double summaryWorkedHrs = 0.0;
 	public Double summaryHoliday = 0.0;

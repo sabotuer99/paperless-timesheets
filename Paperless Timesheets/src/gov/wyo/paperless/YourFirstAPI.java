@@ -83,6 +83,7 @@ public class YourFirstAPI {
 
 		for (String report : reports) {
 			Timecard reportTimecard = generateFakeTimecard(report, month, year);
+			reportTimecard.submissionStatus = getReportTimecardStatus(token,month,year,report);
 			timecards.add(reportTimecard);
 		}
 
@@ -395,8 +396,18 @@ public class YourFirstAPI {
 			@Named("accessToken") String accessToken,
 			@Named("month") Integer month, @Named("year") Integer year,
 			@Named("reportEmail") String reportEmail) {
-		GoogleHelper goog = new GoogleHelper();
+		
 		MyBean response = new MyBean();
+		response.setData(getReportTimecardStatus(accessToken,month,year,reportEmail));
+		return response;
+	}
+	
+	
+	private String getReportTimecardStatus(String accessToken,
+		Integer month, Integer year, String reportEmail) {
+		
+		GoogleHelper goog = new GoogleHelper();
+		String response = "";
 
 		label: try {
 			// get email from token
@@ -409,7 +420,7 @@ public class YourFirstAPI {
 				
 				ArrayList<String> reports = getReports(email);
 				if(!reports.contains(reportEmail)) {
-					response.setData("NOT AUTHORIZED TO ACCESS THIS PERSON");
+					response = "NOT AUTHORIZED TO ACCESS THIS PERSON";
 					break label;
 				}			
 				
@@ -430,7 +441,7 @@ public class YourFirstAPI {
 				String rootFolderId = goog.findFolderId(
 						serviceCred.getAccessToken(), rootFolderTitle, null);
 				if (rootFolderId == "") {
-					response.setData("ROOT FOLDER NOT FOUND");
+					response = "ROOT FOLDER NOT FOUND";
 					break label;
 				}
 				
@@ -440,7 +451,7 @@ public class YourFirstAPI {
 						serviceCred.getAccessToken(), yearFolderTitle,
 						rootFolderId);
 				if (yearFolderId == "") {
-					response.setData("YEAR FOLDER NOT FOUND");
+					response = "YEAR FOLDER NOT FOUND";
 					break label;
 				}
 				
@@ -453,13 +464,14 @@ public class YourFirstAPI {
 						serviceCred.getAccessToken(), monthFolderTitle,
 						yearFolderId);
 				if (monthFolderId == "") {
-					response.setData("MONTH FOLDER NOT FOUND");
+					response = "MONTH FOLDER NOT FOUND";
 					break label;
 				}
 				
 				// find existing timecard sheet file
 				String timesheetId = goog.findSheetId(
-						serviceCred.getAccessToken(), email, monthFolderId);
+						serviceCred.getAccessToken(), reportEmail, monthFolderId);
+				
 				if (timesheetId != null && timesheetId.length() > 0) {
 					SpreadsheetService service = goog
 							.getServiceAccountSpreadsheetService();
@@ -471,23 +483,23 @@ public class YourFirstAPI {
 					if(matcher.find()){					
 						String status = matcher.group(1);
 						System.out.println(status);
-						response.setData(status);
+						response = status;
 					} else {
-						response.setData("INVALID NAME");
+						response = "INVALID NAME";
 						break label;
 					}
 					
 				} else {
-					response.setData("NOT SUBMITTED");
+					response = "NOT SUBMITTED";
 					break label;
 				}
 
 			} else {
-				response.setData("BADTOKEN");
+				response = "BADTOKEN";
 			}
 
 		} catch (Exception e) {
-			response.setData("ERROR");
+			response = "ERROR";
 			e.printStackTrace();
 		}
 

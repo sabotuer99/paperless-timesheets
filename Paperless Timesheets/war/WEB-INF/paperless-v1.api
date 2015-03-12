@@ -296,6 +296,9 @@
           "user" : {
             "type" : "string"
           },
+          "submissionStatus" : {
+            "type" : "string"
+          },
           "days" : {
             "type" : "array",
             "items" : {

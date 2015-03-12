@@ -437,12 +437,14 @@ public class GoogleHelper {
 			//fileName = URLDecoder.decode(fileName, "UTF-8");
 			String queryUnencoded = "mimeType = '"+ mimeType + "' and title " + titlePredicate + " '" + fileName + "'";
 			
+			
 			if(parentId != null && parentId.length() > 0){
 				queryUnencoded += " and '"+ parentId +"' in parents";
 			}			
 			
 			query = URLEncoder.encode(queryUnencoded, "UTF-8");
 			
+			System.out.print(query);
 			
 		} catch (UnsupportedEncodingException e) {
 			// query should be such that the result is empty

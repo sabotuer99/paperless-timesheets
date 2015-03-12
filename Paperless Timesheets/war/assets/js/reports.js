@@ -62,14 +62,31 @@ function renderTimecards(timecards){
 
 function renderAccordionPanel(timecard){
 	var hrefId = Math.random().toString().replace('0.', 'collapse');
+	var statusClass;
+	var approveButton = "";
+	
+	switch(timecard.submissionStatus){
+	case "Pending":
+		statusClass = "label-warning";
+		approveButton = '&nbsp;&nbsp;&nbsp;<button class="btn btn-success btn-xs" onclick="alert('+ "'" +' [Fake] Approved timecard for ' + timecard.user + '!' + "'" +')">Approve</button>';
+		break;
+	case "Approved":
+		statusClass = "label-success";
+		break;
+	default:
+		statusClass = "label-danger";
+	}
+	
 	
 	var panel = '<div class="panel panel-primary">'+
 					'<div class="panel-heading">'+
 					    '<h4 class="panel-title">'+
-					        '<a data-toggle="collapse" data-parent="#accordion" href="#' + hrefId + '">' + timecard.user + '</a>'+
+					        '<a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#' + hrefId + '">' + timecard.user + '</a>'+
+					        '&nbsp;&nbsp;&nbsp;<span style="text-transform: capitalize;" class="label ' + statusClass + '">'+ timecard.submissionStatus +'</span>'+
+					        approveButton +
 					    '</h4>'+
 					'</div>'+
-					'<div id="' + hrefId + '" class="panel-collapse collapse in">'+
+					'<div id="' + hrefId + '" class="panel-collapse collapse">'+
 					    '<div class="panel-body">'+
 					        renderTimecard(timecard) +
 					    '</div>'+
