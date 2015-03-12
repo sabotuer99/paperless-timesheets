@@ -82,7 +82,7 @@ function renderAccordionPanel(timecard){
 					'<div class="panel-heading">'+
 					    '<h4 class="panel-title">'+
 					        '<a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#' + hrefId + '">' + timecard.user + '</a>'+
-					        '&nbsp;&nbsp;&nbsp;<span style="text-transform: capitalize;" class="label ' + statusClass + '">'+ timecard.submissionStatus +'</span>'+
+					        '&nbsp;&nbsp;&nbsp;<span style="text-transform: capitalize;" class="label ' + statusClass + '">'+ timecard.submissionStatus.toLowerCase() +'</span>'+
 					        approveButton +
 					    '</h4>'+
 					'</div>'+
