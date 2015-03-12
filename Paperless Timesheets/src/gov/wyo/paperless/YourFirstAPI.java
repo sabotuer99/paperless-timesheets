@@ -6,6 +6,7 @@ import gov.wyo.paperless.GoogleHelper.FileRoles;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
@@ -61,6 +62,46 @@ public class YourFirstAPI {
 		Timecard timecard = generateFakeTimecard(email, month, year);
 
 		return timecard;
+	}
+	
+	/**
+	 * This endpoint makes up Harvest data
+	 * 
+	 * @throws ParseException
+	 */
+	@ApiMethod(name = "dummyReportTimecards")
+	public ArrayList<Timecard> dummyReportTimecards(@Named("token") String token,
+			@Named("month") int month, @Named("year") int year) {
+
+		String email = new GoogleHelper().validateEmailFromToken(token);
+		ArrayList<String> reports = getReports(email);
+		ArrayList<Timecard> timecards = new ArrayList<Timecard>();
+				
+		for (String report : reports) {
+			Timecard reportTimecard = generateFakeTimecard(report, month, year);
+			timecards.add(reportTimecard);
+		}			
+
+		return timecards;
+	}
+	
+	private ArrayList<String> getReports(String email) {
+		ArrayList<String> reports = new ArrayList<String>();
+		
+		if(email == "josh.soffe@wyo.gov"){
+			reports.add("troy.whorten@wyo.gov");
+			reports.add("paul.ogle@wyo.gov");
+			reports.add("tyler.bjornestad@wyo.gov");
+			reports.add("tyler.christopherson@wyo.gov");
+			reports.add("matt.pfister@wyo.gov");
+			reports.add("kim.turner@wyo.gov");		
+		} else {
+			reports.add("test.user1@wyo.gov");
+			reports.add("test.user2@wyo.gov");
+			reports.add("test.user3@wyo.gov");
+		}
+		
+		return reports;
 	}
 
 	/**

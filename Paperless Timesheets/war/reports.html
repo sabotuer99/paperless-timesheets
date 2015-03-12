@@ -43,8 +43,8 @@
 			</div>
 			<div id="navbar" class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
-					<li class="active"><a href="#">My Timecard</a></li>
-					<li><a href="/reports.html">My Reports</a></li>
+					<li ><a href="/index.html">My Timecard</a></li>
+					<li class="active"><a href="#">My Reports</a></li>
 				</ul>
 			</div>
 			<!--/.nav-collapse -->
@@ -54,7 +54,7 @@
 	<div class="container">
 
 		<div class="starter-template">
-			<h1>My Timecard</h1>
+			<h1>My Reports</h1>
 			<hr/>			
 			<select id="month" class="btn btn-primary">
 				<option value="1" selected>January</option>
@@ -75,20 +75,20 @@
 				<option value="2014">2014</option>
 				<option value="2013">2013</option>
 			</select>
-			<button id="google" title="Get timecard using your Google account" class="btn btn-primary">
-				Refresh Timecard
+			<button id="reportTimecards" title="Get timecard using your Google account" class="btn btn-primary">
+				Refresh Timecards
 				<img id="refreshLoader" alt="ajax loader" src="/assets/img/ajax-loader.gif" style="display:none;">
 			</button>
-			<button id="submit" title="Submit timecard for approval" class="btn btn-primary">
+			<!-- <button id="submit" title="Submit timecard for approval" class="btn btn-primary">
 				Submit Timecard
 				<img id="submitLoader" alt="ajax loader" src="/assets/img/ajax-loader.gif" style="display:none;">
-			</button>
+			</button> -->
 		</div>
 		
 		
-		<div id="timecard"></div>
+	<div class="panel-group" id="accordion">
+    </div>
 		
-
 	</div>
 	<!-- /.container -->
 
@@ -103,7 +103,7 @@
 
 	<script src="/assets/js/oauth.js"></script>
 	<script src="/assets/js/common.js"></script>
-	<script src="/assets/js/paperless.js"></script>
+	<script src="/assets/js/reports.js"></script>
 
 	<div
 		style="display: none; color: white; text-align: center; position: fixed; top: 0px; left: 0px; width: 100%; height: auto; min-width: 100%; max-width: 100%; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 12px; line-height: normal; font-family: 'Helvetica Neue', Helvetica, Arial, Geneva, sans-serif; cursor: pointer; padding: 5px; background-color: rgb(255, 143, 0);">
