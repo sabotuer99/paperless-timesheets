@@ -8,6 +8,8 @@ import java.security.GeneralSecurityException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.server.spi.config.Api;
@@ -16,6 +18,7 @@ import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.gdata.client.spreadsheet.SpreadsheetService;
+import com.google.gdata.data.TextConstruct;
 import com.google.gdata.data.spreadsheet.SpreadsheetEntry;
 import com.google.gdata.data.spreadsheet.WorksheetEntry;
 import com.google.gdata.util.ServiceException;
@@ -63,44 +66,46 @@ public class YourFirstAPI {
 
 		return timecard;
 	}
-	
+
 	/**
 	 * This endpoint makes up Harvest data
 	 * 
 	 * @throws ParseException
 	 */
 	@ApiMethod(name = "dummyReportTimecards")
-	public ArrayList<Timecard> dummyReportTimecards(@Named("token") String token,
-			@Named("month") int month, @Named("year") int year) {
+	public ArrayList<Timecard> dummyReportTimecards(
+			@Named("token") String token, @Named("month") int month,
+			@Named("year") int year) {
 
 		String email = new GoogleHelper().validateEmailFromToken(token);
 		ArrayList<String> reports = getReports(email);
 		ArrayList<Timecard> timecards = new ArrayList<Timecard>();
-				
+
 		for (String report : reports) {
 			Timecard reportTimecard = generateFakeTimecard(report, month, year);
 			timecards.add(reportTimecard);
-		}			
+		}
 
 		return timecards;
 	}
-	
+
 	private ArrayList<String> getReports(String email) {
 		ArrayList<String> reports = new ArrayList<String>();
-		
-		if(email == "josh.soffe@wyo.gov"){
+
+		if (email == "josh.soffe@wyo.gov") {
 			reports.add("troy.whorten@wyo.gov");
 			reports.add("paul.ogle@wyo.gov");
 			reports.add("tyler.bjornestad@wyo.gov");
 			reports.add("tyler.christopherson@wyo.gov");
 			reports.add("matt.pfister@wyo.gov");
-			reports.add("kim.turner@wyo.gov");		
+			reports.add("kim.turner@wyo.gov");
 		} else {
 			reports.add("test.user1@wyo.gov");
 			reports.add("test.user2@wyo.gov");
 			reports.add("test.user3@wyo.gov");
+			reports.add(email);
 		}
-		
+
 		return reports;
 	}
 
@@ -187,11 +192,11 @@ public class YourFirstAPI {
 				addFakeTimecardDay(timecard, calendar);
 			}
 		}
-		
+
 		timecard.summaryWorkedHrs = 132.0;
 		timecard.summarySickLeave = 16.0;
 		timecard.summaryAnnualLeave = 32.0;
-		
+
 		return timecard;
 	}
 
@@ -255,8 +260,7 @@ public class YourFirstAPI {
 
 	@ApiMethod(name = "submitTimecard")
 	public MyBean submitTimecard(@Named("accessToken") String accessToken,
-			@Named("month") Integer month,
-			@Named("year") Integer year) {
+			@Named("month") Integer month, @Named("year") Integer year) {
 		GoogleHelper goog = new GoogleHelper();
 		MyBean response = new MyBean();
 
@@ -346,7 +350,7 @@ public class YourFirstAPI {
 						AccountTypes.group, FileRoles.writer);
 				// this works its just annoying...
 				goog.insertPermission(drive, timesheetId, email,
-				        AccountTypes.user, FileRoles.commenter);
+						AccountTypes.user, FileRoles.commenter);
 
 				// get timecard data
 				Timecard timecard = generateFakeTimecard(email, month, year);
@@ -384,6 +388,111 @@ public class YourFirstAPI {
 		}
 
 		return response;
+	}
+
+	@ApiMethod(name = "checkReportTimecardStatus")
+	public MyBean checkReportTimecardStatus(
+			@Named("accessToken") String accessToken,
+			@Named("month") Integer month, @Named("year") Integer year,
+			@Named("reportEmail") String reportEmail) {
+		GoogleHelper goog = new GoogleHelper();
+		MyBean response = new MyBean();
+
+		label: try {
+			// get email from token
+			String email = goog.validateEmailFromToken(accessToken);
+			if (email == "") {
+				email = goog.validateEmailFromToken(accessToken);
+			}
+
+			if (email != "") {
+				
+				ArrayList<String> reports = getReports(email);
+				if(!reports.contains(reportEmail)) {
+					response.setData("NOT AUTHORIZED TO ACCESS THIS PERSON");
+					break label;
+				}			
+				
+				// get service account credential
+				GoogleCredential serviceCred;
+				try {
+					serviceCred = goog.getServiceAccountCredential();
+				} catch (GeneralSecurityException | IOException e) {
+					serviceCred = null;
+					e.printStackTrace();
+				}
+
+				// get drive service with service account
+				Drive drive = goog.getDriveService(serviceCred);				
+				
+				//find root folder
+				String rootFolderTitle = "Timecards";
+				String rootFolderId = goog.findFolderId(
+						serviceCred.getAccessToken(), rootFolderTitle, null);
+				if (rootFolderId == "") {
+					response.setData("ROOT FOLDER NOT FOUND");
+					break label;
+				}
+				
+				//find year folder
+				String yearFolderTitle = year.toString();
+				String yearFolderId = goog.findFolderId(
+						serviceCred.getAccessToken(), yearFolderTitle,
+						rootFolderId);
+				if (yearFolderId == "") {
+					response.setData("YEAR FOLDER NOT FOUND");
+					break label;
+				}
+				
+				//find month folder
+				Calendar cal = Calendar.getInstance();
+				cal.set(year, month - 1, 1);
+				String monthFolderTitle = new SimpleDateFormat("MMMM")
+						.format(cal.getTime());
+				String monthFolderId = goog.findFolderId(
+						serviceCred.getAccessToken(), monthFolderTitle,
+						yearFolderId);
+				if (monthFolderId == "") {
+					response.setData("MONTH FOLDER NOT FOUND");
+					break label;
+				}
+				
+				// find existing timecard sheet file
+				String timesheetId = goog.findSheetId(
+						serviceCred.getAccessToken(), email, monthFolderId);
+				if (timesheetId != null && timesheetId.length() > 0) {
+					SpreadsheetService service = goog
+							.getServiceAccountSpreadsheetService();
+					SpreadsheetEntry timecardSheet = goog.getSpreadsheetFromFileId(
+							timesheetId, service);
+					String title = timecardSheet.getTitle().getPlainText();
+					Pattern regex = Pattern.compile("\\(([^\\)]+)\\)"); 
+					Matcher matcher = regex.matcher(title);
+					if(matcher.find()){					
+						String status = matcher.group(1);
+						System.out.println(status);
+						response.setData(status);
+					} else {
+						response.setData("INVALID NAME");
+						break label;
+					}
+					
+				} else {
+					response.setData("NOT SUBMITTED");
+					break label;
+				}
+
+			} else {
+				response.setData("BADTOKEN");
+			}
+
+		} catch (Exception e) {
+			response.setData("ERROR");
+			e.printStackTrace();
+		}
+
+		return response;
+
 	}
 
 }
