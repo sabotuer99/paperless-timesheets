@@ -77,6 +77,24 @@ function success(d) {
 		tableBody.append(rowHtml);
 	});
 	
+	var summaryBody = $("#timecardSummary tbody");
+	summaryBody.html("");
+	
+	var bodyHtml = "<tr><td>Worked Hrs</td><td>" + d.summaryWorkedHrs + "</td></tr>" +
+	               "<tr><td>Holiday</td><td>" + d.summaryHoliday + "</td></tr>" +
+	               "<tr><td>Sick Leave</td><td>" + d.summarySickLeave + "</td></tr>" +
+	               "<tr><td>Annual Leave</td><td>" + d.summaryAnnualLeave + "</td></tr>" +
+	               "<tr><td>Comp Used</td><td>" + d.summaryCompUsed + "</td></tr>" +
+	               "<tr><td>On Call</td><td>" + d.summaryOnCall + "</td></tr>" +
+	               "<tr><td>Other Leave</td><td>" + d.summaryOtherLeave + "</td></tr>" +
+	               "<tr><td>Total Reported Hrs</td><td>" + d.summaryTotalReported + "</td></tr>" +
+	               "<tr><td>OT Hrs</td><td>" + d.summaryOTHrs + "</td></tr>" +
+	               "<tr><td>ST Hrs</td><td>" + d.summarySTHrs + "</td></tr>" +
+	               "<tr><td>Last Month/Week OT Hrs Already Paid</td><td>" + d.summaryLastMonthOTPaid + "</td></tr>" +
+	               "<tr><td>Last Month/Week OT Hrs Still Owed</td><td>" + d.summaryLastMonthOTOwed + "</td></tr>";
+	         
+	summaryBody.append(bodyHtml);
+						
 	$("#refreshLoader").hide();
 }
 

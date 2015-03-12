@@ -239,6 +239,48 @@
             "items" : {
               "$ref" : "TimecardDay"
             }
+          },
+          "summaryWorkedHrs" : {
+            "type" : "number"
+          },
+          "summaryHoliday" : {
+            "type" : "number"
+          },
+          "summarySickLeave" : {
+            "type" : "number"
+          },
+          "summaryAnnualLeave" : {
+            "type" : "number"
+          },
+          "summaryCompUsed" : {
+            "type" : "number"
+          },
+          "summaryOnCall" : {
+            "type" : "number"
+          },
+          "summaryOtherLeave" : {
+            "type" : "number"
+          },
+          "summaryTotalReported" : {
+            "type" : "number"
+          },
+          "summaryShiftDiff" : {
+            "type" : "number"
+          },
+          "summaryHolidayHrsWorked" : {
+            "type" : "number"
+          },
+          "summaryOTHrs" : {
+            "type" : "number"
+          },
+          "summarySTHrs" : {
+            "type" : "number"
+          },
+          "summaryLastMonthOTPaid" : {
+            "type" : "number"
+          },
+          "summaryLastMonthOTOwed" : {
+            "type" : "number"
           }
         }
       },

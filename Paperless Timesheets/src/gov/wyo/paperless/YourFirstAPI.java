@@ -146,6 +146,11 @@ public class YourFirstAPI {
 				addFakeTimecardDay(timecard, calendar);
 			}
 		}
+		
+		timecard.summaryWorkedHrs = 132.0;
+		timecard.summarySickLeave = 16.0;
+		timecard.summaryAnnualLeave = 32.0;
+		
 		return timecard;
 	}
 
