@@ -26,7 +26,7 @@ public class TimecardDay {
 		
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
-		String formattedDate = new SimpleDateFormat("EEE,   MMM d").format(cal.getTime());	 
+		String formattedDate = new SimpleDateFormat("MMM dd  (EEE)").format(cal.getTime());	 
 		
 		dayData.put("Date", formattedDate);
 		dayData.put("Work Hours", workHours.toString());

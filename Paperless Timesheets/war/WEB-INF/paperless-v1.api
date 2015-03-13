@@ -346,6 +346,18 @@
           },
           "summaryLastMonthOTOwed" : {
             "type" : "number"
+          },
+          "baseCSV" : {
+            "type" : "string"
+          },
+          "summaryKeys" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "summaryDataMap" : {
+            "$ref" : "JsonMap"
           }
         }
       },
@@ -397,6 +409,10 @@
             "type" : "number"
           }
         }
+      },
+      "JsonMap" : {
+        "id" : "JsonMap",
+        "type" : "object"
       },
       "MyBean" : {
         "id" : "MyBean",

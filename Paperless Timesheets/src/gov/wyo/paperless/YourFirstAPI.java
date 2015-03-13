@@ -338,13 +338,15 @@ public class YourFirstAPI {
 
 				// create new sheet file
 				// share with group and submitter
+				// get timecard data
+				Timecard timecard = generateFakeTimecard(email, month, year);
 				String timesheetTitle = email + "_(Pending)";
 				timesheetId = goog
 						.createNewDriveSheet(
 								drive,
 								timesheetTitle,
 								monthFolderId,
-								"Date,Work Hours,Annual,Sick,Holiday,Other Leave,Comp Used,Reported Hours, OT Earned, ST Hours,Shift Diff, On Call,Base,Callback\n,,,,,,,,,,,,,")
+								timecard.getBaseCSV())
 						.getId();
 				goog.insertPermission(drive, timesheetId,
 						"paperless-timesheet-test@googlegroups.com",
@@ -352,31 +354,48 @@ public class YourFirstAPI {
 				// this works its just annoying...
 				goog.insertPermission(drive, timesheetId, email,
 						AccountTypes.user, FileRoles.commenter);
-
-				// get timecard data
-				Timecard timecard = generateFakeTimecard(email, month, year);
-
-				// insert data rows into worksheet
-				SpreadsheetService service = goog
-						.getServiceAccountSpreadsheetService();
-				SpreadsheetEntry timecardSheet = goog.getSpreadsheetFromFileId(
-						timesheetId, service);
-				WorksheetEntry worksheet = goog.getDefaultWorksheet(service,
-						timecardSheet);
-				// goog.changeWorksheetDimensions(worksheet, 14, 33);
-
-				for (TimecardDay day : timecard.days) {
-					try {
-						goog.insertListRow(worksheet, service,
-								day.generateDayData());
-					} catch (Exception e) {
-						// retry once, can sometimes get Socket Timeout
-						// Exception...
-						goog.insertListRow(worksheet, service,
-								day.generateDayData());
-						e.printStackTrace();
-					}
-				}
+				
+				
+// THIS CODE WAS FLAKEY, TOO MANY API CALLS TO GOOGLE...				
+//				String timesheetTitle = email + "_(Pending)";
+//				timesheetId = goog
+//						.createNewDriveSheet(
+//								drive,
+//								timesheetTitle,
+//								monthFolderId,
+//								"Date,Work Hours,Annual,Sick,Holiday,Other Leave,Comp Used,Reported Hours, OT Earned, ST Hours,Shift Diff, On Call,Base,Callback\n,,,,,,,,,,,,,")
+//						.getId();
+//				goog.insertPermission(drive, timesheetId,
+//						"paperless-timesheet-test@googlegroups.com",
+//						AccountTypes.group, FileRoles.writer);
+//				// this works its just annoying...
+//				goog.insertPermission(drive, timesheetId, email,
+//						AccountTypes.user, FileRoles.commenter);
+//
+//				// get timecard data
+//				Timecard timecard = generateFakeTimecard(email, month, year);
+//
+//				// insert data rows into worksheet
+//				SpreadsheetService service = goog
+//						.getServiceAccountSpreadsheetService();
+//				SpreadsheetEntry timecardSheet = goog.getSpreadsheetFromFileId(
+//						timesheetId, service);
+//				WorksheetEntry worksheet = goog.getDefaultWorksheet(service,
+//						timecardSheet);
+//				// goog.changeWorksheetDimensions(worksheet, 14, 33);
+//
+//				for (TimecardDay day : timecard.days) {
+//					try {
+//						goog.insertListRow(worksheet, service,
+//								day.generateDayData());
+//					} catch (Exception e) {
+//						// retry once, can sometimes get Socket Timeout
+//						// Exception...
+//						goog.insertListRow(worksheet, service,
+//								day.generateDayData());
+//						e.printStackTrace();
+//					}
+//				}
 				response.setData("SUCCESS");
 
 			} else {
