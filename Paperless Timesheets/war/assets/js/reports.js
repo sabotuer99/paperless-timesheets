@@ -169,7 +169,8 @@ function approveSuccess(status) {
 }
 
 function submitReportTimecard(email){
-	$("#submitLoader").show();
+	var spinnerId = "#" + loaderId(email);
+	$(spinnerId).show();
 	
 	var protocol = window.location.hostname == "localhost" ? "http:" : "https:";
 	var month = $("#month option:selected").val();
