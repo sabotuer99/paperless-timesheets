@@ -5,7 +5,7 @@ function googleLogin(command, report) {
 			console.log(result);
 			window.access_token = result.access_token;
 			if(command == "approve"){
-				approveTimecard(report);
+				sendApproveTimecard(report, result.access_token);
 			}
 			else{
 				getReportTimeCards(result.access_token);
@@ -60,15 +60,15 @@ function renderTimecards(timecards){
 	return panels;
 }
 
-function renderAccordionPanel(timecard){
-	var hrefId = Math.random().toString().replace('0.', 'collapse');
-	var statusClass;
+function renderStatus(status, email){
 	var approveButton = "";
-	
-	switch(timecard.submissionStatus){
+	var statusClass = ""
+		;
+	switch(status){
 	case "Pending":
 		statusClass = "label-warning";
-		approveButton = '&nbsp;&nbsp;&nbsp;<button class="btn btn-success btn-xs" onclick="alert('+ "'" +' [Fake] Approved timecard for ' + timecard.user + '!' + "'" +')">Approve</button>';
+		approveButton = '&nbsp;&nbsp;&nbsp;<button class="btn btn-success btn-xs" onclick="approveTimecard('+ "'" + email + "'" +')">Approve' + 
+						'<img id="' + loaderId(email) + '" alt="ajax loader" src="/assets/img/ajax-loader.gif" style="display:none;"></button>';
 		break;
 	case "Approved":
 		statusClass = "label-success";
@@ -77,13 +77,20 @@ function renderAccordionPanel(timecard){
 		statusClass = "label-danger";
 	}
 	
+	return '<span id="'+ statusId(email) +'">&nbsp;&nbsp;&nbsp;<span style="text-transform: capitalize;" class="label ' + statusClass + '">'+ status.toLowerCase() +'</span>'+ approveButton +'</span>'; 	
+	
+}
+
+function renderAccordionPanel(timecard){
+	var hrefId = Math.random().toString().replace('0.', 'collapse');
+
+	var status = renderStatus(timecard.submissionStatus, timecard.user);
 	
 	var panel = '<div class="panel panel-primary">'+
 					'<div class="panel-heading">'+
 					    '<h4 class="panel-title">'+
 					        '<a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#' + hrefId + '">' + timecard.user + '</a>'+
-					        '&nbsp;&nbsp;&nbsp;<span style="text-transform: capitalize;" class="label ' + statusClass + '">'+ timecard.submissionStatus.toLowerCase() +'</span>'+
-					        approveButton +
+					        status +
 					    '</h4>'+
 					'</div>'+
 					'<div id="' + hrefId + '" class="panel-collapse collapse">'+
@@ -100,6 +107,63 @@ function refreshTimecards(){
 		googleLogin();
 	else
 		getReportTimeCards(window.access_token);
+}
+
+function approveTimecard(email){
+	if (window.access_token == undefined)
+		googleLogin("approve", email);
+	else
+		sendApproveTimecard(email, window.access_token);
+}
+
+function loaderId(email){
+	var text;
+	if(email && email.replace)
+		text = email.replace(/[\+-\?@]/g, '');
+	return "LOADER_" + text;
+}
+
+function statusId(email){
+	var text;
+	if(email && email.replace)
+		text = email.replace(/[\+-\?@]/g, '');
+	return "STATUS_" + text;
+}
+
+
+function sendApproveTimecard(email, access_token){
+	var spinnerId = "#" + loaderId(email);
+	$(spinnerId).show();
+	
+	var protocol = window.location.hostname == "localhost" ? "http:" : "https:";
+	var month = $("#month option:selected").val();
+	var year = $("#year option:selected").val();
+	var url = protocol + "//" + window.location.host
+						+ "/_ah/api/paperless/v1/approveReportTimecard/"
+						+ access_token + "/" + month + "/" + year + "/" + email;
+	$.ajax({
+		type : "POST",
+		url : url,
+		success : approveSuccess,
+		dataType : "text"
+	});
+}
+
+function approveSuccess(status) {
+	
+	//console.log("called success: " + timecardsString);
+	var data = JSON.parse(status);
+
+	var spinnerId = "#" + loaderId(data.email);
+	$(spinnerId).hide();
+	
+	alert(data.data);
+	
+	if(data.data == "SUCCESS"){
+		var statusElementId = "#" + statusId(data.email);
+		$(statusElementId)[0].outerHTML = renderStatus("Approved", data.email);
+	}
+	//console.log(timecards);
 }
 
 $('#reportTimecards').click(refreshTimecards);

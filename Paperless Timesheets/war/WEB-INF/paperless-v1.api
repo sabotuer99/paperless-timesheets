@@ -126,6 +126,39 @@
         "body" : "autoTemplate(backendResponse)"
       }
     },
+    "paperless.approveReportTimecard" : {
+      "path" : "approveReportTimecard/{accessToken}/{month}/{year}/{reportEmail}",
+      "httpMethod" : "POST",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "gov.wyo.paperless.YourFirstAPI.approveReportTimecard",
+      "request" : {
+        "parameters" : {
+          "accessToken" : {
+            "type" : "string",
+            "required" : true
+          },
+          "month" : {
+            "type" : "int32",
+            "required" : true
+          },
+          "year" : {
+            "type" : "int32",
+            "required" : true
+          },
+          "reportEmail" : {
+            "type" : "string",
+            "required" : true
+          }
+        },
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    },
     "paperless.submitTimecard" : {
       "path" : "submitTimecard/{accessToken}/{month}/{year}",
       "httpMethod" : "POST",
@@ -347,8 +380,8 @@
           "summaryLastMonthOTOwed" : {
             "type" : "number"
           },
-          "baseCSV" : {
-            "type" : "string"
+          "summaryDataMap" : {
+            "$ref" : "JsonMap"
           },
           "summaryKeys" : {
             "type" : "array",
@@ -356,8 +389,8 @@
               "type" : "string"
             }
           },
-          "summaryDataMap" : {
-            "$ref" : "JsonMap"
+          "baseCSV" : {
+            "type" : "string"
           }
         }
       },
@@ -423,6 +456,18 @@
           }
         }
       },
+      "ApprovalStatus" : {
+        "id" : "ApprovalStatus",
+        "type" : "object",
+        "properties" : {
+          "email" : {
+            "type" : "string"
+          },
+          "data" : {
+            "type" : "string"
+          }
+        }
+      },
       "TimecardCollection" : {
         "id" : "TimecardCollection",
         "type" : "object",
@@ -455,6 +500,11 @@
       "gov.wyo.paperless.YourFirstAPI.timecard" : {
         "response" : {
           "$ref" : "MyBean"
+        }
+      },
+      "gov.wyo.paperless.YourFirstAPI.approveReportTimecard" : {
+        "response" : {
+          "$ref" : "ApprovalStatus"
         }
       },
       "gov.wyo.paperless.YourFirstAPI.submitTimecard" : {

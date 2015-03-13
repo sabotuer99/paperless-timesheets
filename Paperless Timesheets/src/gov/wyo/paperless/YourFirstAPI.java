@@ -8,6 +8,7 @@ import java.security.GeneralSecurityException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -83,7 +84,8 @@ public class YourFirstAPI {
 
 		for (String report : reports) {
 			Timecard reportTimecard = generateFakeTimecard(report, month, year);
-			reportTimecard.submissionStatus = getReportTimecardStatus(token,month,year,report);
+			reportTimecard.submissionStatus = getReportTimecardStatus(token,
+					month, year, report);
 			timecards.add(reportTimecard);
 		}
 
@@ -235,14 +237,9 @@ public class YourFirstAPI {
 	public MyBean serviceAccountToken() {
 		String token = "";
 		// try this with the service account
-		try {
-			token = new GoogleHelper().getServiceAccountCredential()
-					.getAccessToken();
-			System.out.println("Service Account access_token: " + token);
-		} catch (GeneralSecurityException | IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		token = new GoogleHelper().getServiceAccountCredential()
+				.getAccessToken();
+		System.out.println("Service Account access_token: " + token);
 
 		MyBean response = new MyBean();
 		response.setData(token);
@@ -274,13 +271,8 @@ public class YourFirstAPI {
 
 			if (email != "") {
 				// get service account credential
-				GoogleCredential serviceCred;
-				try {
-					serviceCred = goog.getServiceAccountCredential();
-				} catch (GeneralSecurityException | IOException e) {
-					serviceCred = null;
-					e.printStackTrace();
-				}
+				GoogleCredential serviceCred = goog
+						.getServiceAccountCredential();
 
 				// get drive service with service account
 				Drive drive = goog.getDriveService(serviceCred);
@@ -341,61 +333,56 @@ public class YourFirstAPI {
 				// get timecard data
 				Timecard timecard = generateFakeTimecard(email, month, year);
 				String timesheetTitle = email + "_(Pending)";
-				timesheetId = goog
-						.createNewDriveSheet(
-								drive,
-								timesheetTitle,
-								monthFolderId,
-								timecard.getBaseCSV())
-						.getId();
+				timesheetId = goog.createNewDriveSheet(drive, timesheetTitle,
+						monthFolderId, timecard.getBaseCSV()).getId();
 				goog.insertPermission(drive, timesheetId,
 						"paperless-timesheet-test@googlegroups.com",
 						AccountTypes.group, FileRoles.writer);
 				// this works its just annoying...
 				goog.insertPermission(drive, timesheetId, email,
 						AccountTypes.user, FileRoles.commenter);
-				
-				
-// THIS CODE WAS FLAKEY, TOO MANY API CALLS TO GOOGLE...				
-//				String timesheetTitle = email + "_(Pending)";
-//				timesheetId = goog
-//						.createNewDriveSheet(
-//								drive,
-//								timesheetTitle,
-//								monthFolderId,
-//								"Date,Work Hours,Annual,Sick,Holiday,Other Leave,Comp Used,Reported Hours, OT Earned, ST Hours,Shift Diff, On Call,Base,Callback\n,,,,,,,,,,,,,")
-//						.getId();
-//				goog.insertPermission(drive, timesheetId,
-//						"paperless-timesheet-test@googlegroups.com",
-//						AccountTypes.group, FileRoles.writer);
-//				// this works its just annoying...
-//				goog.insertPermission(drive, timesheetId, email,
-//						AccountTypes.user, FileRoles.commenter);
-//
-//				// get timecard data
-//				Timecard timecard = generateFakeTimecard(email, month, year);
-//
-//				// insert data rows into worksheet
-//				SpreadsheetService service = goog
-//						.getServiceAccountSpreadsheetService();
-//				SpreadsheetEntry timecardSheet = goog.getSpreadsheetFromFileId(
-//						timesheetId, service);
-//				WorksheetEntry worksheet = goog.getDefaultWorksheet(service,
-//						timecardSheet);
-//				// goog.changeWorksheetDimensions(worksheet, 14, 33);
-//
-//				for (TimecardDay day : timecard.days) {
-//					try {
-//						goog.insertListRow(worksheet, service,
-//								day.generateDayData());
-//					} catch (Exception e) {
-//						// retry once, can sometimes get Socket Timeout
-//						// Exception...
-//						goog.insertListRow(worksheet, service,
-//								day.generateDayData());
-//						e.printStackTrace();
-//					}
-//				}
+
+				// THIS CODE WAS FLAKEY, TOO MANY API CALLS TO GOOGLE...
+				// String timesheetTitle = email + "_(Pending)";
+				// timesheetId = goog
+				// .createNewDriveSheet(
+				// drive,
+				// timesheetTitle,
+				// monthFolderId,
+				// "Date,Work Hours,Annual,Sick,Holiday,Other Leave,Comp Used,Reported Hours, OT Earned, ST Hours,Shift Diff, On Call,Base,Callback\n,,,,,,,,,,,,,")
+				// .getId();
+				// goog.insertPermission(drive, timesheetId,
+				// "paperless-timesheet-test@googlegroups.com",
+				// AccountTypes.group, FileRoles.writer);
+				// // this works its just annoying...
+				// goog.insertPermission(drive, timesheetId, email,
+				// AccountTypes.user, FileRoles.commenter);
+				//
+				// // get timecard data
+				// Timecard timecard = generateFakeTimecard(email, month, year);
+				//
+				// // insert data rows into worksheet
+				// SpreadsheetService service = goog
+				// .getServiceAccountSpreadsheetService();
+				// SpreadsheetEntry timecardSheet =
+				// goog.getSpreadsheetFromFileId(
+				// timesheetId, service);
+				// WorksheetEntry worksheet = goog.getDefaultWorksheet(service,
+				// timecardSheet);
+				// // goog.changeWorksheetDimensions(worksheet, 14, 33);
+				//
+				// for (TimecardDay day : timecard.days) {
+				// try {
+				// goog.insertListRow(worksheet, service,
+				// day.generateDayData());
+				// } catch (Exception e) {
+				// // retry once, can sometimes get Socket Timeout
+				// // Exception...
+				// goog.insertListRow(worksheet, service,
+				// day.generateDayData());
+				// e.printStackTrace();
+				// }
+				// }
 				response.setData("SUCCESS");
 
 			} else {
@@ -415,18 +402,22 @@ public class YourFirstAPI {
 			@Named("accessToken") String accessToken,
 			@Named("month") Integer month, @Named("year") Integer year,
 			@Named("reportEmail") String reportEmail) {
-		
+
 		MyBean response = new MyBean();
-		response.setData(getReportTimecardStatus(accessToken,month,year,reportEmail));
+		response.setData(getReportTimecardStatus(accessToken, month, year,
+				reportEmail));
 		return response;
 	}
-	
-	
-	private String getReportTimecardStatus(String accessToken,
-		Integer month, Integer year, String reportEmail) {
-		
+
+	@ApiMethod(name = "approveReportTimecard")
+	public ApprovalStatus approveReportTimecard(
+			@Named("accessToken") String accessToken,
+			@Named("month") Integer month, @Named("year") Integer year,
+			@Named("reportEmail") String reportEmail) {
+
+		ApprovalStatus response = new ApprovalStatus();
+		response.setEmail(reportEmail);
 		GoogleHelper goog = new GoogleHelper();
-		String response = "";
 
 		label: try {
 			// get email from token
@@ -438,24 +429,131 @@ public class YourFirstAPI {
 			if (email != "") {
 				
 				ArrayList<String> reports = getReports(email);
-				if(!reports.contains(reportEmail)) {
-					response = "NOT AUTHORIZED TO ACCESS THIS PERSON";
+				if (!reports.contains(reportEmail)) {
+					response.setData("NOT AUTHORIZED TO APPROVE THIS TIMECARD");
 					break label;
 				}			
+
+				String status = getReportTimecardStatus(accessToken, month,
+						year, reportEmail);
+
+				System.out.print(status);
 				
-				// get service account credential
-				GoogleCredential serviceCred;
-				try {
-					serviceCred = goog.getServiceAccountCredential();
-				} catch (GeneralSecurityException | IOException e) {
-					serviceCred = null;
-					e.printStackTrace();
+				if (status.equals("Pending")) {
+					// get service account credential
+					GoogleCredential serviceCred = goog
+							.getServiceAccountCredential();
+
+					// get drive service with service account
+					Drive drive = goog.getDriveService(serviceCred);
+
+					// get folder id of timecard
+					String monthFolderId = getMonthFolderId(month, year,
+							serviceCred, goog, drive);
+
+					// find and delete existing timecard sheet file
+					String timesheetId = goog.findSheetId(
+							serviceCred.getAccessToken(), reportEmail,
+							monthFolderId);
+					if (timesheetId != null && timesheetId.length() > 0) {
+						goog.deleteFile(drive, timesheetId);
+					}
+
+					// create new sheet file
+					// share with group and submitter
+					// get timecard data
+					Timecard timecard = generateFakeTimecard(reportEmail,
+							month, year);
+					String timesheetTitle = reportEmail + "_(Approved)";
+					String content = timecard.getBaseCSV() + "Signed by "
+							+ email + " on " + getNowDateString();
+					timesheetId = goog.createNewDriveSheet(drive,
+							timesheetTitle, monthFolderId, content).getId();
+					goog.insertPermission(drive, timesheetId,
+							"paperless-timesheet-test@googlegroups.com",
+							AccountTypes.group, FileRoles.writer);
+
+					response.setData("SUCCESS");
+				} else {
+					response.setData("TIMECARD NOT PENDING");
+				}
+			} else {
+				response.setData("BADTOKEN");
+			}
+		} catch (Exception e) {
+			response.setData("ERROR");
+			e.printStackTrace();
+		}
+		
+		System.out.print(response.getData());
+		return response;
+	}
+
+	private String getNowDateString() {
+		Date date = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+		return sdf.format(date);
+	}
+
+
+	private String getMonthFolderId(Integer month, Integer year,
+			GoogleCredential serviceCred, GoogleHelper goog, Drive drive) {
+
+		String monthFolderId = "";
+
+		// find root folder
+		String rootFolderTitle = "Timecards";
+		String rootFolderId = goog.findFolderId(serviceCred.getAccessToken(),
+				rootFolderTitle, null);
+		if (rootFolderId != "") {
+			// find year folder
+			String yearFolderTitle = year.toString();
+			String yearFolderId = goog
+					.findFolderId(serviceCred.getAccessToken(),
+							yearFolderTitle, rootFolderId);
+			if (yearFolderId != "") {
+				// find month folder
+				Calendar cal = Calendar.getInstance();
+				cal.set(year, month - 1, 1);
+				String monthFolderTitle = new SimpleDateFormat("MMMM")
+						.format(cal.getTime());
+				monthFolderId = goog.findFolderId(serviceCred.getAccessToken(),
+						monthFolderTitle, yearFolderId);
+			}
+		}
+
+		return monthFolderId;
+	}
+
+	private String getReportTimecardStatus(String accessToken, Integer month,
+			Integer year, String reportEmail) {
+
+		GoogleHelper goog = new GoogleHelper();
+		String response = "";
+
+		label: try {
+			// get email from token
+			String email = goog.validateEmailFromToken(accessToken);
+			if (email == "") {
+				email = goog.validateEmailFromToken(accessToken);
+			}
+
+			if (email != "") {
+
+				ArrayList<String> reports = getReports(email);
+				if (!reports.contains(reportEmail)) {
+					response = "NOT AUTHORIZED TO ACCESS THIS PERSON";
+					break label;
 				}
 
+				// get service account credential
+				GoogleCredential serviceCred = goog
+						.getServiceAccountCredential();
+
 				// get drive service with service account
-				Drive drive = goog.getDriveService(serviceCred);				
-				
-				//find root folder
+				//Drive drive = goog.getDriveService(serviceCred);
+
+				// find root folder
 				String rootFolderTitle = "Timecards";
 				String rootFolderId = goog.findFolderId(
 						serviceCred.getAccessToken(), rootFolderTitle, null);
@@ -463,8 +561,8 @@ public class YourFirstAPI {
 					response = "ROOT FOLDER NOT FOUND";
 					break label;
 				}
-				
-				//find year folder
+
+				// find year folder
 				String yearFolderTitle = year.toString();
 				String yearFolderId = goog.findFolderId(
 						serviceCred.getAccessToken(), yearFolderTitle,
@@ -473,8 +571,8 @@ public class YourFirstAPI {
 					response = "YEAR FOLDER NOT FOUND";
 					break label;
 				}
-				
-				//find month folder
+
+				// find month folder
 				Calendar cal = Calendar.getInstance();
 				cal.set(year, month - 1, 1);
 				String monthFolderTitle = new SimpleDateFormat("MMMM")
@@ -486,20 +584,21 @@ public class YourFirstAPI {
 					response = "MONTH FOLDER NOT FOUND";
 					break label;
 				}
-				
+
 				// find existing timecard sheet file
 				String timesheetId = goog.findSheetId(
-						serviceCred.getAccessToken(), reportEmail, monthFolderId);
-				
+						serviceCred.getAccessToken(), reportEmail,
+						monthFolderId);
+
 				if (timesheetId != null && timesheetId.length() > 0) {
 					SpreadsheetService service = goog
 							.getServiceAccountSpreadsheetService();
-					SpreadsheetEntry timecardSheet = goog.getSpreadsheetFromFileId(
-							timesheetId, service);
+					SpreadsheetEntry timecardSheet = goog
+							.getSpreadsheetFromFileId(timesheetId, service);
 					String title = timecardSheet.getTitle().getPlainText();
-					Pattern regex = Pattern.compile("\\(([^\\)]+)\\)"); 
+					Pattern regex = Pattern.compile("\\(([^\\)]+)\\)");
 					Matcher matcher = regex.matcher(title);
-					if(matcher.find()){					
+					if (matcher.find()) {
 						String status = matcher.group(1);
 						System.out.println(status);
 						response = status;
@@ -507,7 +606,7 @@ public class YourFirstAPI {
 						response = "INVALID NAME";
 						break label;
 					}
-					
+
 				} else {
 					response = "NOT SUBMITTED";
 					break label;

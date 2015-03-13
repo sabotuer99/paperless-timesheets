@@ -295,14 +295,7 @@ public class GoogleHelper {
 	}
 
 	public SpreadsheetService getServiceAccountSpreadsheetService() {
-		SpreadsheetService service;
-		try {
-			service = getSpreadsheetService(getServiceAccountCredential());
-		} catch (GeneralSecurityException | IOException e) {
-			service = null;
-			e.printStackTrace();
-		}
-
+		SpreadsheetService service = getSpreadsheetService(getServiceAccountCredential());
 		return service;
 	}
 
@@ -347,47 +340,47 @@ public class GoogleHelper {
 		return null;
 	}
 
-	public GoogleCredential getServiceAccountCredential()
-			throws GeneralSecurityException, IOException {
-		HttpTransport httpTransport = GoogleNetHttpTransport
-				.newTrustedTransport();
-		JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+	public GoogleCredential getServiceAccountCredential(){
+		try {
+			HttpTransport httpTransport = GoogleNetHttpTransport
+					.newTrustedTransport();
+			JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
 
-		Collection<String> scopes = new ArrayList<String>();
-		scopes.add("https://www.googleapis.com/auth/userinfo.profile");
-		scopes.add("https://www.googleapis.com/auth/userinfo.email");
-		scopes.add("https://www.googleapis.com/auth/drive");
-		scopes.add("https://spreadsheets.google.com/feeds/");
+			Collection<String> scopes = new ArrayList<String>();
+			scopes.add("https://www.googleapis.com/auth/userinfo.profile");
+			scopes.add("https://www.googleapis.com/auth/userinfo.email");
+			scopes.add("https://www.googleapis.com/auth/drive");
+			scopes.add("https://spreadsheets.google.com/feeds/");
 
-		InputStream keyStream = GoogleHelper.class
-				.getResourceAsStream("key.p12");
-		KeyStore keystore = KeyStore.getInstance("PKCS12");
-		String p12Password = "notasecret";
-		keystore.load(keyStream, p12Password.toCharArray());
-		PrivateKey key = (PrivateKey) keystore.getKey("privatekey",
-				p12Password.toCharArray());
+			InputStream keyStream = GoogleHelper.class
+					.getResourceAsStream("key.p12");
+			KeyStore keystore = KeyStore.getInstance("PKCS12");
+			String p12Password = "notasecret";
+			keystore.load(keyStream, p12Password.toCharArray());
+			PrivateKey key = (PrivateKey) keystore.getKey("privatekey",
+					p12Password.toCharArray());
 
-		// Build service account credential.
-		GoogleCredential credential = new GoogleCredential.Builder()
-				.setTransport(httpTransport).setJsonFactory(jsonFactory)
-				.setServiceAccountId(Constants.SERVICE_ACCOUNT_ID)
-				.setServiceAccountScopes(scopes)
-				.setServiceAccountPrivateKey(key)
-				// .setServiceAccountUser("troy.whorten@wyo.gov")
-				.build();
+			// Build service account credential.
+			GoogleCredential credential = new GoogleCredential.Builder()
+					.setTransport(httpTransport).setJsonFactory(jsonFactory)
+					.setServiceAccountId(Constants.SERVICE_ACCOUNT_ID)
+					.setServiceAccountScopes(scopes)
+					.setServiceAccountPrivateKey(key)
+					// .setServiceAccountUser("troy.whorten@wyo.gov")
+					.build();
 
-		credential.refreshToken();
-		return credential;
+			credential.refreshToken();
+			return credential;
+		} catch (GeneralSecurityException | IOException e) {
+			// TODO Auto-generated catch block	
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	public Drive getServiceAccountDriveService() {
-		Drive drive;
-		try {
-			drive = getDriveService(getServiceAccountCredential());
-		} catch (GeneralSecurityException | IOException e) {
-			drive = null;
-			e.printStackTrace();
-		}
+		Drive drive = getDriveService(getServiceAccountCredential());
+
 		return drive;
 	}
 
