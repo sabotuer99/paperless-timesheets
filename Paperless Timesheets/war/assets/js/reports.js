@@ -61,13 +61,15 @@ function renderTimecards(timecards){
 }
 
 function renderStatus(status, email){
-	var approveButton = "";
+	var button = '&nbsp;&nbsp;&nbsp;<button class="btn btn-info btn-xs" onclick="submitReportTimecard('+ "'" + email + "'" +')">Submit' + 
+	'<img id="' + loaderId(email) + '" alt="ajax loader" src="/assets/img/ajax-loader.gif" style="display:none;"></button>';
+
 	var statusClass = ""
 		;
 	switch(status){
 	case "Pending":
 		statusClass = "label-warning";
-		approveButton = '&nbsp;&nbsp;&nbsp;<button class="btn btn-success btn-xs" onclick="approveTimecard('+ "'" + email + "'" +')">Approve' + 
+		button = '&nbsp;&nbsp;&nbsp;<button class="btn btn-success btn-xs" onclick="approveTimecard('+ "'" + email + "'" +')">Approve' + 
 						'<img id="' + loaderId(email) + '" alt="ajax loader" src="/assets/img/ajax-loader.gif" style="display:none;"></button>';
 		break;
 	case "Approved":
@@ -77,7 +79,7 @@ function renderStatus(status, email){
 		statusClass = "label-danger";
 	}
 	
-	return '<span id="'+ statusId(email) +'">&nbsp;&nbsp;&nbsp;<span style="text-transform: capitalize;" class="label ' + statusClass + '">'+ status.toLowerCase() +'</span>'+ approveButton +'</span>'; 	
+	return '<span id="'+ statusId(email) +'">&nbsp;&nbsp;&nbsp;<span style="text-transform: capitalize;" class="label ' + statusClass + '">'+ status.toLowerCase() +'</span>'+ button +'</span>'; 	
 	
 }
 
@@ -119,14 +121,14 @@ function approveTimecard(email){
 function loaderId(email){
 	var text;
 	if(email && email.replace)
-		text = email.replace(/[\+-\?@]/g, '');
+		text = email.replace(/[\+-\/\:-\?@]/g, '');
 	return "LOADER_" + text;
 }
 
 function statusId(email){
 	var text;
 	if(email && email.replace)
-		text = email.replace(/[\+-\?@]/g, '');
+		text = email.replace(/[\+-\/\:-\?@]/g, '');
 	return "STATUS_" + text;
 }
 
@@ -165,5 +167,47 @@ function approveSuccess(status) {
 	}
 	//console.log(timecards);
 }
+
+function submitReportTimecard(email){
+	$("#submitLoader").show();
+	
+	var protocol = window.location.hostname == "localhost" ? "http:" : "https:";
+	var month = $("#month option:selected").val();
+	var year = $("#year option:selected").val();
+	var url = protocol + "//" + window.location.host
+						+ "/_ah/api/paperless/v1/submitReportTimecard/"
+						+ window.access_token + "/" + month + "/" + year + "/" + email;
+	$.ajax({
+		type : "POST",
+		url : url,
+		success : postSubmit,
+		dataType : "text"
+	});
+}
+
+function postSubmit(d) {
+	data = JSON.parse(d);
+
+	switch (data.data){
+	case "SUCCESS":
+		alert("Timecard submitted successfully");
+		break;
+	case "BADTOKEN":
+		alert("There was a problem with your access token, try again.");
+		window.access_token = undefined;
+		break;
+	case "ERROR":
+		alert("Something went wrong, try again");
+		break;
+	default:
+		break;
+	}
+	
+	var statusElementId = "#" + statusId(data.email);
+	$(statusElementId)[0].outerHTML = renderStatus("Pending", data.email);
+	
+	return;
+}
+
 
 $('#reportTimecards').click(refreshTimecards);

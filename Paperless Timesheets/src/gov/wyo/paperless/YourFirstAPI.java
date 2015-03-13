@@ -19,7 +19,6 @@ import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.gdata.client.spreadsheet.SpreadsheetService;
-import com.google.gdata.data.TextConstruct;
 import com.google.gdata.data.spreadsheet.SpreadsheetEntry;
 import com.google.gdata.data.spreadsheet.WorksheetEntry;
 import com.google.gdata.util.ServiceException;
@@ -271,118 +270,7 @@ public class YourFirstAPI {
 
 			if (email != "") {
 				// get service account credential
-				GoogleCredential serviceCred = goog
-						.getServiceAccountCredential();
-
-				// get drive service with service account
-				Drive drive = goog.getDriveService(serviceCred);
-
-				// find or create root folder
-				// if new, share with group
-				String rootFolderTitle = "Timecards";
-				String rootFolderId = goog.findFolderId(
-						serviceCred.getAccessToken(), rootFolderTitle, null);
-				if (rootFolderId == "") {
-					rootFolderId = goog.createNewDriveFolder(drive,
-							rootFolderTitle, null).getId();
-					goog.insertPermission(drive, rootFolderId,
-							"paperless-timesheet-test@googlegroups.com",
-							AccountTypes.group, FileRoles.writer);
-				}
-
-				// find or create year folder
-				// if new, share with group
-				String yearFolderTitle = year.toString();
-				String yearFolderId = goog.findFolderId(
-						serviceCred.getAccessToken(), yearFolderTitle,
-						rootFolderId);
-				if (yearFolderId == "") {
-					yearFolderId = goog.createNewDriveFolder(drive,
-							yearFolderTitle, rootFolderId).getId();
-					goog.insertPermission(drive, yearFolderId,
-							"paperless-timesheet-test@googlegroups.com",
-							AccountTypes.group, FileRoles.writer);
-				}
-
-				// find or create month folder
-				// if new, share with group
-				Calendar cal = Calendar.getInstance();
-				cal.set(year, month - 1, 1);
-				String monthFolderTitle = new SimpleDateFormat("MMMM")
-						.format(cal.getTime());
-				String monthFolderId = goog.findFolderId(
-						serviceCred.getAccessToken(), monthFolderTitle,
-						yearFolderId);
-				if (monthFolderId == "") {
-					monthFolderId = goog.createNewDriveFolder(drive,
-							monthFolderTitle, yearFolderId).getId();
-					goog.insertPermission(drive, monthFolderId,
-							"paperless-timesheet-test@googlegroups.com",
-							AccountTypes.group, FileRoles.writer);
-				}
-
-				// find and delete existing timecard sheet file
-				String timesheetId = goog.findSheetId(
-						serviceCred.getAccessToken(), email, monthFolderId);
-				if (timesheetId != null && timesheetId.length() > 0) {
-					goog.deleteFile(drive, timesheetId);
-				}
-
-				// create new sheet file
-				// share with group and submitter
-				// get timecard data
-				Timecard timecard = generateFakeTimecard(email, month, year);
-				String timesheetTitle = email + "_(Pending)";
-				timesheetId = goog.createNewDriveSheet(drive, timesheetTitle,
-						monthFolderId, timecard.getBaseCSV()).getId();
-				goog.insertPermission(drive, timesheetId,
-						"paperless-timesheet-test@googlegroups.com",
-						AccountTypes.group, FileRoles.writer);
-				// this works its just annoying...
-				goog.insertPermission(drive, timesheetId, email,
-						AccountTypes.user, FileRoles.commenter);
-
-				// THIS CODE WAS FLAKEY, TOO MANY API CALLS TO GOOGLE...
-				// String timesheetTitle = email + "_(Pending)";
-				// timesheetId = goog
-				// .createNewDriveSheet(
-				// drive,
-				// timesheetTitle,
-				// monthFolderId,
-				// "Date,Work Hours,Annual,Sick,Holiday,Other Leave,Comp Used,Reported Hours, OT Earned, ST Hours,Shift Diff, On Call,Base,Callback\n,,,,,,,,,,,,,")
-				// .getId();
-				// goog.insertPermission(drive, timesheetId,
-				// "paperless-timesheet-test@googlegroups.com",
-				// AccountTypes.group, FileRoles.writer);
-				// // this works its just annoying...
-				// goog.insertPermission(drive, timesheetId, email,
-				// AccountTypes.user, FileRoles.commenter);
-				//
-				// // get timecard data
-				// Timecard timecard = generateFakeTimecard(email, month, year);
-				//
-				// // insert data rows into worksheet
-				// SpreadsheetService service = goog
-				// .getServiceAccountSpreadsheetService();
-				// SpreadsheetEntry timecardSheet =
-				// goog.getSpreadsheetFromFileId(
-				// timesheetId, service);
-				// WorksheetEntry worksheet = goog.getDefaultWorksheet(service,
-				// timecardSheet);
-				// // goog.changeWorksheetDimensions(worksheet, 14, 33);
-				//
-				// for (TimecardDay day : timecard.days) {
-				// try {
-				// goog.insertListRow(worksheet, service,
-				// day.generateDayData());
-				// } catch (Exception e) {
-				// // retry once, can sometimes get Socket Timeout
-				// // Exception...
-				// goog.insertListRow(worksheet, service,
-				// day.generateDayData());
-				// e.printStackTrace();
-				// }
-				// }
+				submitTimecard(month, year, goog, email);
 				response.setData("SUCCESS");
 
 			} else {
@@ -397,6 +285,80 @@ public class YourFirstAPI {
 		return response;
 	}
 
+	private void submitTimecard(Integer month, Integer year, GoogleHelper goog,
+			String email) {
+		GoogleCredential serviceCred = goog
+				.getServiceAccountCredential();
+
+		// get drive service with service account
+		Drive drive = goog.getDriveService(serviceCred);
+
+		// find or create root folder
+		// if new, share with group
+		String rootFolderTitle = "Timecards";
+		String rootFolderId = goog.findFolderId(
+				serviceCred.getAccessToken(), rootFolderTitle, null);
+		if (rootFolderId == "") {
+			rootFolderId = goog.createNewDriveFolder(drive,
+					rootFolderTitle, null).getId();
+			goog.insertPermission(drive, rootFolderId,
+					Constants.TIMECARD_GROUP,
+					AccountTypes.group, FileRoles.writer);
+		}
+
+		// find or create year folder
+		// if new, share with group
+		String yearFolderTitle = year.toString();
+		String yearFolderId = goog.findFolderId(
+				serviceCred.getAccessToken(), yearFolderTitle,
+				rootFolderId);
+		if (yearFolderId == "") {
+			yearFolderId = goog.createNewDriveFolder(drive,
+					yearFolderTitle, rootFolderId).getId();
+			goog.insertPermission(drive, yearFolderId,
+					Constants.TIMECARD_GROUP,
+					AccountTypes.group, FileRoles.writer);
+		}
+
+		// find or create month folder
+		// if new, share with group
+		Calendar cal = Calendar.getInstance();
+		cal.set(year, month - 1, 1);
+		String monthFolderTitle = new SimpleDateFormat("MMMM")
+				.format(cal.getTime());
+		String monthFolderId = goog.findFolderId(
+				serviceCred.getAccessToken(), monthFolderTitle,
+				yearFolderId);
+		if (monthFolderId == "") {
+			monthFolderId = goog.createNewDriveFolder(drive,
+					monthFolderTitle, yearFolderId).getId();
+			goog.insertPermission(drive, monthFolderId,
+					Constants.TIMECARD_GROUP,
+					AccountTypes.group, FileRoles.writer);
+		}
+
+		// find and delete existing timecard sheet file
+		String timesheetId = goog.findSheetId(
+				serviceCred.getAccessToken(), email, monthFolderId);
+		if (timesheetId != null && timesheetId.length() > 0) {
+			goog.deleteFile(drive, timesheetId);
+		}
+
+		// create new sheet file
+		// share with group and submitter
+		// get timecard data
+		Timecard timecard = generateFakeTimecard(email, month, year);
+		String timesheetTitle = email + "_(Pending)";
+		timesheetId = goog.createNewDriveSheet(drive, timesheetTitle,
+				monthFolderId, timecard.getBaseCSV()).getId();
+		goog.insertPermission(drive, timesheetId,
+				Constants.TIMECARD_GROUP,
+				AccountTypes.group, FileRoles.writer);
+		// this works its just annoying...
+		goog.insertPermission(drive, timesheetId, email,
+				AccountTypes.user, FileRoles.commenter);
+	}
+
 	@ApiMethod(name = "checkReportTimecardStatus")
 	public MyBean checkReportTimecardStatus(
 			@Named("accessToken") String accessToken,
@@ -409,6 +371,47 @@ public class YourFirstAPI {
 		return response;
 	}
 
+	@ApiMethod(name = "submitReportTimecard")
+	public ApprovalStatus submitReportTimecard(
+			@Named("accessToken") String accessToken,
+			@Named("month") Integer month, @Named("year") Integer year,
+			@Named("reportEmail") String reportEmail) {
+
+		ApprovalStatus response = new ApprovalStatus();
+		response.setEmail(reportEmail);
+		GoogleHelper goog = new GoogleHelper();
+
+		label: try {
+			// get email from token
+			String email = goog.validateEmailFromToken(accessToken);
+			if (email == "") {
+				email = goog.validateEmailFromToken(accessToken);
+			}
+
+			if (email != "") {
+				
+				ArrayList<String> reports = getReports(email);
+				if (!reports.contains(reportEmail)) {
+					response.setData("NOT AUTHORIZED TO APPROVE THIS TIMECARD");
+					break label;
+				}			
+
+				submitTimecard(month, year, goog, reportEmail);
+
+				response.setData("SUCCESS");
+				
+			} else {
+				response.setData("BADTOKEN");
+			}
+		} catch (Exception e) {
+			response.setData("ERROR");
+			e.printStackTrace();
+		}
+		
+		System.out.print(response.getData());
+		return response;
+	}
+	
 	@ApiMethod(name = "approveReportTimecard")
 	public ApprovalStatus approveReportTimecard(
 			@Named("accessToken") String accessToken,
@@ -465,12 +468,12 @@ public class YourFirstAPI {
 					Timecard timecard = generateFakeTimecard(reportEmail,
 							month, year);
 					String timesheetTitle = reportEmail + "_(Approved)";
-					String content = timecard.getBaseCSV() + "Signed by "
+					String content = timecard.getBaseCSV() + "Approved by "
 							+ email + " on " + getNowDateString();
 					timesheetId = goog.createNewDriveSheet(drive,
 							timesheetTitle, monthFolderId, content).getId();
 					goog.insertPermission(drive, timesheetId,
-							"paperless-timesheet-test@googlegroups.com",
+							Constants.TIMECARD_GROUP,
 							AccountTypes.group, FileRoles.writer);
 
 					response.setData("SUCCESS");
