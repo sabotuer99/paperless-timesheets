@@ -192,17 +192,17 @@
         "body" : "autoTemplate(backendResponse)"
       }
     },
-    "paperless.submitTimecard" : {
-      "path" : "submitTimecard/{accessToken}/{month}/{year}",
+    "paperless.dummyReportTimecards" : {
+      "path" : "dummyReportTimecards/{token}/{month}/{year}",
       "httpMethod" : "POST",
       "authLevel" : "NONE",
       "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
       "audiences" : [ ],
       "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
-      "rosyMethod" : "gov.wyo.paperless.YourFirstAPI.submitTimecard",
+      "rosyMethod" : "gov.wyo.paperless.YourFirstAPI.dummyReportTimecards",
       "request" : {
         "parameters" : {
-          "accessToken" : {
+          "token" : {
             "type" : "string",
             "required" : true
           },
@@ -221,17 +221,17 @@
         "body" : "autoTemplate(backendResponse)"
       }
     },
-    "paperless.dummyReportTimecards" : {
-      "path" : "dummyReportTimecards/{token}/{month}/{year}",
+    "paperless.submitTimecard" : {
+      "path" : "submitTimecard/{accessToken}/{month}/{year}",
       "httpMethod" : "POST",
       "authLevel" : "NONE",
       "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
       "audiences" : [ ],
       "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
-      "rosyMethod" : "gov.wyo.paperless.YourFirstAPI.dummyReportTimecards",
+      "rosyMethod" : "gov.wyo.paperless.YourFirstAPI.submitTimecard",
       "request" : {
         "parameters" : {
-          "token" : {
+          "accessToken" : {
             "type" : "string",
             "required" : true
           },
@@ -413,6 +413,9 @@
           "summaryLastMonthOTOwed" : {
             "type" : "number"
           },
+          "baseCSV" : {
+            "type" : "string"
+          },
           "summaryDataMap" : {
             "$ref" : "JsonMap"
           },
@@ -421,9 +424,6 @@
             "items" : {
               "type" : "string"
             }
-          },
-          "baseCSV" : {
-            "type" : "string"
           }
         }
       },
@@ -545,14 +545,14 @@
           "$ref" : "ApprovalStatus"
         }
       },
-      "gov.wyo.paperless.YourFirstAPI.submitTimecard" : {
-        "response" : {
-          "$ref" : "MyBean"
-        }
-      },
       "gov.wyo.paperless.YourFirstAPI.dummyReportTimecards" : {
         "response" : {
           "$ref" : "TimecardCollection"
+        }
+      },
+      "gov.wyo.paperless.YourFirstAPI.submitTimecard" : {
+        "response" : {
+          "$ref" : "MyBean"
         }
       },
       "gov.wyo.paperless.YourFirstAPI.checkReportTimecardStatus" : {
