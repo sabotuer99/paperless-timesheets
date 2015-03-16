@@ -94,19 +94,21 @@ public class YourFirstAPI {
 	private ArrayList<String> getReports(String email) {
 		ArrayList<String> reports = new ArrayList<String>();
 
-		if (email == "josh.soffe@wyo.gov") {
-			reports.add("troy.whorten@wyo.gov");
-			reports.add("paul.ogle@wyo.gov");
-			reports.add("tyler.bjornestad@wyo.gov");
-			reports.add("tyler.christopherson@wyo.gov");
-			reports.add("matt.pfister@wyo.gov");
-			reports.add("kim.turner@wyo.gov");
-		} else {
-			reports.add("test.user1@wyo.gov");
-			reports.add("test.user2@wyo.gov");
-			reports.add("test.user3@wyo.gov");
-			reports.add(email);
-		}
+//		if (email == "josh.soffe@wyo.gov") {
+//			reports.add("troy.whorten@wyo.gov");
+//			reports.add("paul.ogle@wyo.gov");
+//			reports.add("tyler.bjornestad@wyo.gov");
+//			reports.add("tyler.christopherson@wyo.gov");
+//			reports.add("matt.pfister@wyo.gov");
+//			reports.add("kim.turner@wyo.gov");
+//		} else {
+//			reports.add("test.user1@wyo.gov");
+//			reports.add("test.user2@wyo.gov");
+//			reports.add("test.user3@wyo.gov");
+//			reports.add(email);
+//		}
+		
+		reports = new OrgChartHelper().getReports(email);
 
 		return reports;
 	}
