@@ -42,9 +42,9 @@ public class HarvestHelper {
 		 * The following are the Harvest information used to connect
 		 * to the Harvest REST api.
 		 */
-		String subdomain = "wyoets";
-		String username = "pogle@uwyo.edu";
-		String password = "Bananas#12";
+		String subdomain = Secrets.HARVEST_SUBDOMAIN;
+		String username  = Secrets.HARVEST_USERNAME;
+		String password  = Secrets.HARVEST_PASSWORD;
 		
 		ViewData vd = null;
 		ETSHarvestUser user = new ETSHarvestUser();
