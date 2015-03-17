@@ -26,6 +26,27 @@
   "ownerDomain" : "paperless.wyo.gov",
   "ownerName" : "paperless.wyo.gov",
   "methods" : {
+    "paperless.sayHi" : {
+      "path" : "sayHi/{name}",
+      "httpMethod" : "POST",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "gov.wyo.paperless.YourFirstAPI.sayHi",
+      "request" : {
+        "parameters" : {
+          "name" : {
+            "type" : "string",
+            "required" : true
+          }
+        },
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    },
     "paperless.reportTimecards" : {
       "path" : "reportTimecards/{token}/{month}/{year}",
       "httpMethod" : "POST",
@@ -55,27 +76,6 @@
         "body" : "autoTemplate(backendResponse)"
       }
     },
-    "paperless.sayHi" : {
-      "path" : "sayHi/{name}",
-      "httpMethod" : "POST",
-      "authLevel" : "NONE",
-      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
-      "audiences" : [ ],
-      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
-      "rosyMethod" : "gov.wyo.paperless.YourFirstAPI.sayHi",
-      "request" : {
-        "parameters" : {
-          "name" : {
-            "type" : "string",
-            "required" : true
-          }
-        },
-        "body" : "empty"
-      },
-      "response" : {
-        "body" : "autoTemplate(backendResponse)"
-      }
-    },
     "paperless.dummyGoogleSheet" : {
       "path" : "dummyGoogleSheet/{token}/{month}/{year}",
       "httpMethod" : "POST",
@@ -84,35 +84,6 @@
       "audiences" : [ ],
       "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
       "rosyMethod" : "gov.wyo.paperless.YourFirstAPI.dummyGoogleSheet",
-      "request" : {
-        "parameters" : {
-          "token" : {
-            "type" : "string",
-            "required" : true
-          },
-          "month" : {
-            "type" : "int32",
-            "required" : true
-          },
-          "year" : {
-            "type" : "int32",
-            "required" : true
-          }
-        },
-        "body" : "empty"
-      },
-      "response" : {
-        "body" : "autoTemplate(backendResponse)"
-      }
-    },
-    "paperless.timecard" : {
-      "path" : "timecard/{token}/{month}/{year}",
-      "httpMethod" : "POST",
-      "authLevel" : "NONE",
-      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
-      "audiences" : [ ],
-      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
-      "rosyMethod" : "gov.wyo.paperless.YourFirstAPI.timecard",
       "request" : {
         "parameters" : {
           "token" : {
@@ -158,6 +129,35 @@
           },
           "reportEmail" : {
             "type" : "string",
+            "required" : true
+          }
+        },
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    },
+    "paperless.timecard" : {
+      "path" : "timecard/{token}/{month}/{year}",
+      "httpMethod" : "POST",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "gov.wyo.paperless.YourFirstAPI.timecard",
+      "request" : {
+        "parameters" : {
+          "token" : {
+            "type" : "string",
+            "required" : true
+          },
+          "month" : {
+            "type" : "int32",
+            "required" : true
+          },
+          "year" : {
+            "type" : "int32",
             "required" : true
           }
         },
@@ -229,21 +229,6 @@
         "body" : "autoTemplate(backendResponse)"
       }
     },
-    "paperless.serviceAccountToken" : {
-      "path" : "serviceAccountToken",
-      "httpMethod" : "POST",
-      "authLevel" : "NONE",
-      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
-      "audiences" : [ ],
-      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
-      "rosyMethod" : "gov.wyo.paperless.YourFirstAPI.serviceAccountToken",
-      "request" : {
-        "body" : "empty"
-      },
-      "response" : {
-        "body" : "autoTemplate(backendResponse)"
-      }
-    },
     "paperless.checkReportTimecardStatus" : {
       "path" : "checkReportTimecardStatus/{accessToken}/{month}/{year}/{reportEmail}",
       "httpMethod" : "POST",
@@ -271,6 +256,21 @@
             "required" : true
           }
         },
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    },
+    "paperless.serviceAccountToken" : {
+      "path" : "serviceAccountToken",
+      "httpMethod" : "POST",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "gov.wyo.paperless.YourFirstAPI.serviceAccountToken",
+      "request" : {
         "body" : "empty"
       },
       "response" : {
@@ -334,6 +334,15 @@
   },
   "descriptor" : {
     "schemas" : {
+      "MyBean" : {
+        "id" : "MyBean",
+        "type" : "object",
+        "properties" : {
+          "data" : {
+            "type" : "string"
+          }
+        }
+      },
       "Timecard" : {
         "id" : "Timecard",
         "type" : "object",
@@ -471,15 +480,6 @@
           }
         }
       },
-      "MyBean" : {
-        "id" : "MyBean",
-        "type" : "object",
-        "properties" : {
-          "data" : {
-            "type" : "string"
-          }
-        }
-      },
       "ApprovalStatus" : {
         "id" : "ApprovalStatus",
         "type" : "object",
@@ -494,14 +494,14 @@
       }
     },
     "methods" : {
-      "gov.wyo.paperless.YourFirstAPI.reportTimecards" : {
-        "response" : {
-          "$ref" : "TimecardCollection"
-        }
-      },
       "gov.wyo.paperless.YourFirstAPI.sayHi" : {
         "response" : {
           "$ref" : "MyBean"
+        }
+      },
+      "gov.wyo.paperless.YourFirstAPI.reportTimecards" : {
+        "response" : {
+          "$ref" : "TimecardCollection"
         }
       },
       "gov.wyo.paperless.YourFirstAPI.dummyGoogleSheet" : {
@@ -509,14 +509,14 @@
           "$ref" : "MyBean"
         }
       },
-      "gov.wyo.paperless.YourFirstAPI.timecard" : {
-        "response" : {
-          "$ref" : "Timecard"
-        }
-      },
       "gov.wyo.paperless.YourFirstAPI.submitReportTimecard" : {
         "response" : {
           "$ref" : "ApprovalStatus"
+        }
+      },
+      "gov.wyo.paperless.YourFirstAPI.timecard" : {
+        "response" : {
+          "$ref" : "Timecard"
         }
       },
       "gov.wyo.paperless.YourFirstAPI.approveReportTimecard" : {
@@ -529,12 +529,12 @@
           "$ref" : "MyBean"
         }
       },
-      "gov.wyo.paperless.YourFirstAPI.serviceAccountToken" : {
+      "gov.wyo.paperless.YourFirstAPI.checkReportTimecardStatus" : {
         "response" : {
           "$ref" : "MyBean"
         }
       },
-      "gov.wyo.paperless.YourFirstAPI.checkReportTimecardStatus" : {
+      "gov.wyo.paperless.YourFirstAPI.serviceAccountToken" : {
         "response" : {
           "$ref" : "MyBean"
         }
