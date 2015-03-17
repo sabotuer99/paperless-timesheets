@@ -108,7 +108,7 @@ public class OrgChartHelper {
 		OrgChartTeam team = getTeam(person.teamId);
 		ArrayList<String> reports = new ArrayList<String>();
 		
-		if(team.teamLeaderId.equals(person.id)) {
+		if(team.teamLeaderId != null && team.teamLeaderId.equals(person.id)) {
 			for (OrgChartPerson report : team.members) {
 				if(!report.email.equals(email)){
 					reports.add(report.email);
