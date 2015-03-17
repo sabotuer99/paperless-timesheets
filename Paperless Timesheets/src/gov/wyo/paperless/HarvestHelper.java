@@ -51,6 +51,7 @@ public class HarvestHelper {
 		ETSHarvestUser user = new ETSHarvestUser();
 		ETSHarvestTimeSheet ts = new ETSHarvestTimeSheet(subdomain, username, password, user);
 		
+		System.out.println("Fetching Harvest Data...");
 		try
 		{
 			Gson gson = new Gson();
@@ -72,7 +73,11 @@ public class HarvestHelper {
 		}
 		catch(Exception ex)
 		{
-			System.out.println(ex.getMessage());
+			System.out.println("Threw exception getting Harvest Data: " + ex.getMessage());
+			for (StackTraceElement ste : ex.getStackTrace()) {
+				System.out.println(ste.getFileName() + ":" + ste.getClassName() + 
+						":" + ste.getLineNumber() + ":" + ste.getMethodName() );
+			}
 		}
 		
 		return vd;
