@@ -32,7 +32,15 @@ function getReportTimeCards(access_token){
 }
 
 function getReportTimeCard(access_token, reportEmail){
-	$("#refreshLoader").show();
+
+	var timecardDivId = "#" + timecardId(reportEmail);
+	var timecardDiv = $(timecardDivId);
+
+	timecardDiv.html("");
+	
+	var loaderId = "#" + timecardLoaderId(reportEmail);
+	$(loaderId).show();
+	
 	
 	var protocol = window.location.hostname == "localhost" ? "http:" : "https:";
 	var month = $("#month option:selected").val();
@@ -124,23 +132,30 @@ function renderStatus(status, email){
 	
 }
 
+function renderRefreshButton(email){
+	return '<button class="btn btn-info btn-xs pull-right" onclick="refreshOneTimecard('+ "'" + email + "'" +')">Refresh</button>';
+}
+
 function renderAccordionPanel(timecard){
 	var hrefId = Math.random().toString().replace('0.', 'collapse');
 
 	var status = renderStatus(timecard.submissionStatus, timecard.user);
+	var refreshButton = renderRefreshButton(timecard.user);
 	
 	var panel = '<div class="panel panel-primary">'+
 					'<div class="panel-heading">'+
 					    '<h4 class="panel-title">'+
 					        '<a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#' + hrefId + '">' + timecard.user + '</a>'+
-					        status +
+					        status + refreshButton +
 					    '</h4>'+
 					'</div>'+
 					'<div id="' + hrefId + '" class="panel-collapse collapse">'+
-					    '<div id="' + timecardId(timecard.user) + '" class="panel-body">'+
-					    	'<img id="' + timecardLoaderId(timecard.user) + '" alt="ajax loader" src="/assets/img/ajax-loader.gif">' +
-					        //renderTimecard(timecard) +
-					    '</div>'+
+						'<div class="panel-body">' +
+							'<img id="' + timecardLoaderId(timecard.user) + '" alt="ajax loader" src="/assets/img/ajax-loader.gif">' +
+						    '<div id="' + timecardId(timecard.user) + '" >'+					    	
+						        //renderTimecard(timecard) +
+						    '</div>'+
+						'</div>'+
 					'</div>'+
 				'</div>';
 	return panel;
@@ -265,5 +280,13 @@ function postSubmit(d) {
 	return;
 }
 
+function refreshOneTimecard(reportEmail){
+	if (window.access_token == undefined) {
+		alert("Login expired, log in and try again.");
+		googleLogin();
+	}
+	else
+		getReportTimeCard(window.access_token, reportEmail);
+}
 
 $('#reportTimecards').click(refreshTimecards);
