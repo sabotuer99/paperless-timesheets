@@ -9,4 +9,5 @@ public class OrgChartTeam {
 	public String teamName;
 	public String description;
 	public ArrayList<OrgChartPerson> members = new ArrayList<OrgChartPerson>();
+	public OrgChartPerson leader;
 }

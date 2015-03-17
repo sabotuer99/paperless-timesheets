@@ -71,6 +71,25 @@ public class OrgChartHelper {
 			
 	}
 	
+	public ArrayList<OrgChartTeam> getTeamChildred(String id){
+		
+		String targetUrl = "https://wyoorgdev.appspot.com/_ah/api/teamEndpoint/v1/getTeamChildren?id=" + id;
+		ArrayList<OrgChartTeam> teams = new ArrayList<OrgChartTeam>();
+
+		try {
+			
+			String response = new HttpHelper().sendGet(targetUrl);		
+			JSONObject teamListJson = new JSONObject(new JSONTokener(response));
+			teams = parseTeamListJson(teamListJson);
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return teams;
+			
+	}
 	
 	public OrgChartTeam parseTeamJson(JSONObject teamJson){
 		
@@ -90,6 +109,8 @@ public class OrgChartHelper {
 					OrgChartPerson person = parsePersonJson(membersJson.getJSONObject(i));
 					team.members.add(person);
 				}
+				
+				team.leader = parsePersonJson(teamJson.getJSONObject("leader"));
 
 			}
 		} catch (JSONException e) {
@@ -100,20 +121,54 @@ public class OrgChartHelper {
 		return team;
 	}	
 	
+	public ArrayList<OrgChartTeam> parseTeamListJson(JSONObject teamListJson){
+		
+		ArrayList<OrgChartTeam> teams = new ArrayList<OrgChartTeam>();
+		
+		try {
+			if (teamListJson.has("items")) {
+				
+				JSONArray items = teamListJson.getJSONArray("items");
+				
+				for (int i = 0; i < items.length(); i++) {
+					OrgChartTeam team = parseTeamJson(items.getJSONObject(i));
+					teams.add(team);
+				}
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		
+		return teams;
+	}	
 	
 	
 	public ArrayList<String> getReports(String email){
+		
+		System.out.println("Search email: " + email);
 		
 		OrgChartPerson person = getPerson(email);
 		OrgChartTeam team = getTeam(person.teamId);
 		ArrayList<String> reports = new ArrayList<String>();
 		
-		if(team.teamLeaderId != null && team.teamLeaderId.equals(person.id)) {
-			for (OrgChartPerson report : team.members) {
-				if(!report.email.equals(email)){
+		System.out.println("Person found: " + person.email);
+		System.out.println("Team found: " + team.id);
+		
+		if(team != null && team.teamLeaderId != null && team.teamLeaderId.equals(person.id)) {
+			for (OrgChartPerson report : team.members) {				
+				if(report != null && report.email != null && !report.email.equals(email)){
 					reports.add(report.email);
 				}
 			}
+			
+			//get supervisors of child teams
+			ArrayList<OrgChartTeam> reportingTeams = getTeamChildred(team.id);
+			for (OrgChartTeam subteam : reportingTeams) {
+				if(subteam != null && subteam.leader != null && subteam.leader.email != null && !subteam.leader.email.equals(email)){
+					reports.add(subteam.leader.email);
+				}
+			}		
 		}
 		
 		return reports;

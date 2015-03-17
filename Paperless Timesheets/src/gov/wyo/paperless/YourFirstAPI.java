@@ -98,6 +98,8 @@ public class YourFirstAPI {
 	private ArrayList<String> getReports(String email) {
 		ArrayList<String> reports = new ArrayList<String>();
 
+		
+		
 //		if (email == "josh.soffe@wyo.gov") {
 //			reports.add("troy.whorten@wyo.gov");
 //			reports.add("paul.ogle@wyo.gov");
