@@ -55,36 +55,38 @@ function renderTimecard (timecard){
 
 function renderTimecardRows(timecard) {
 	var tableBody = "";
-	timecard.days.forEach(function(day) {
-		calculateCellClasses(day);
-		var rowClass = "";
-		if (new Date(day.date).getDay() == 5)
-		{
-			rowClass = "friday";
-		}
-		var date = new Date(day.date);
-		var formattedDate = date.toDateString().replace(" " + date.getFullYear(), "");
-					
-		var rowHtml = "<tr class='" + rowClass + "'> " + 
-					"<td class='" + day.dateCellClass + "'>" + formattedDate + "</td>" + 
-					"<td class='" + day.workHoursCellClass + "'>"	+ day.workHours + "</td>" + 
-					"<td class='" + day.annualCellClass + "'>" + day.annual	+ "</td>" + 
-					"<td class='" + day.sickCellClass + "'>" + day.sick + "</td>" + 
-					"<td class='" + day.holidayCellClass + "'>" + day.holiday + "</td>" + 
-					"<td class='" + day.otherLeaveCellClass + "'>"	+ day.otherLeave + "</td>" +
-					"<td class='" + day.compUsedCellClass + "'>" + day.compUsed + "</td>" +
-					"<td class='" + day.reportedHoursCellClass + "'>" + day.reportedHours + "</td>" + 
-					"<td class='" + day.otEarnedCellClass + "'>" + day.otEarned + "</td>" + 
-					"<td class='" + day.stHoursCellClass + "'>" + day.stHours + "</td>" + 
-					"<td class='" + day.shiftDiffCellClass + "'>" + day.shiftDiff + "</td>" + 
-					"<td class='" + day.onCallCellClass + "'>" + day.holiday + "</td>" + 
-					"<td class='" + day.baseCellClass + "'>" + day.holiday + "</td>" + 
-					"<td class='" + day.callbackCellClass + "'>" + day.holiday + "</td></tr>";
-					
-		//tableBody.append(rowHtml);
-		tableBody += rowHtml;
-	});
 	
+	if(timecard.days){
+		timecard.days.forEach(function(day) {
+			calculateCellClasses(day);
+			var rowClass = "";
+			if (new Date(day.date).getDay() == 5)
+			{
+				rowClass = "friday";
+			}
+			var date = new Date(day.date);
+			var formattedDate = date.toDateString().replace(" " + date.getFullYear(), "");
+						
+			var rowHtml = "<tr class='" + rowClass + "'> " + 
+						"<td class='" + day.dateCellClass + "'>" + formattedDate + "</td>" + 
+						"<td class='" + day.workHoursCellClass + "'>"	+ day.workHours + "</td>" + 
+						"<td class='" + day.annualCellClass + "'>" + day.annual	+ "</td>" + 
+						"<td class='" + day.sickCellClass + "'>" + day.sick + "</td>" + 
+						"<td class='" + day.holidayCellClass + "'>" + day.holiday + "</td>" + 
+						"<td class='" + day.otherLeaveCellClass + "'>"	+ day.otherLeave + "</td>" +
+						"<td class='" + day.compUsedCellClass + "'>" + day.compUsed + "</td>" +
+						"<td class='" + day.reportedHoursCellClass + "'>" + day.reportedHours + "</td>" + 
+						"<td class='" + day.otEarnedCellClass + "'>" + day.otEarned + "</td>" + 
+						"<td class='" + day.stHoursCellClass + "'>" + day.stHours + "</td>" + 
+						"<td class='" + day.shiftDiffCellClass + "'>" + day.shiftDiff + "</td>" + 
+						"<td class='" + day.onCallCellClass + "'>" + day.holiday + "</td>" + 
+						"<td class='" + day.baseCellClass + "'>" + day.holiday + "</td>" + 
+						"<td class='" + day.callbackCellClass + "'>" + day.holiday + "</td></tr>";
+						
+			//tableBody.append(rowHtml);
+			tableBody += rowHtml;
+		});
+	}
 	return tableBody;
 }
 

@@ -11,7 +11,7 @@ public class OrgChartHelper {
 
 	public OrgChartPerson getPerson(String email){
 		
-		String targetUrl = "https://wyoorgdev.appspot.com/_ah/api/personEndpoint/v1/getPersonByEmail?email=" + email;
+		String targetUrl = "https://wyoorgdev.appspot.com/_ah/api/personEndpoint/v1/getPersonByEmail?email=" + email.toLowerCase();
 		OrgChartPerson person = new OrgChartPerson();
 
 		try {
