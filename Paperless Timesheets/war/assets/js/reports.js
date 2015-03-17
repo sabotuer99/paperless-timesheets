@@ -21,7 +21,7 @@ function getReportTimeCards(access_token){
 	var month = $("#month option:selected").val();
 	var year = $("#year option:selected").val();
 	var url = protocol + "//" + window.location.host
-						+ "/_ah/api/paperless/v1/dummyReportTimecards/"
+						+ "/_ah/api/paperless/v1/reportTimecards/"
 						+ access_token + "/" + month + "/" + year;
 	$.ajax({
 		type : "POST",

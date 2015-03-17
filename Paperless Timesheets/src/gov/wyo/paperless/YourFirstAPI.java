@@ -39,31 +39,32 @@ public class YourFirstAPI {
 	}
 
 	/** This endpoint retrieves Harvest data */
-	@ApiMethod(name = "timecard")
-	public MyBean timecard(@Named("token") String token) {
-
-		String targetURL = "";
-		String urlParameters = "";
-		String harvestData = new HttpHelper().executePost(targetURL,
-				urlParameters);
-
-		MyBean response = new MyBean();
-		response.setData(harvestData);
-		return response;
-	}
+//	@ApiMethod(name = "timecard")
+//	public MyBean timecard(@Named("token") String token) {
+//
+//		String targetURL = "";
+//		String urlParameters = "";
+//		String harvestData = new HttpHelper().executePost(targetURL,
+//				urlParameters);
+//
+//		MyBean response = new MyBean();
+//		response.setData(harvestData);
+//		return response;
+//	}
 
 	/**
 	 * This endpoint makes up Harvest data
 	 * 
 	 * @throws ParseException
 	 */
-	@ApiMethod(name = "dummyTimecard")
-	public Timecard dummyTimecard(@Named("token") String token,
+	@ApiMethod(name = "timecard")
+	public Timecard timecard(@Named("token") String token,
 			@Named("month") int month, @Named("year") int year) {
 
 		String email = new GoogleHelper().validateEmailFromToken(token);
-		Timecard timecard = generateFakeTimecard(email, month, year);
-
+		//Timecard timecard = generateFakeTimecard(email, month, year);
+		Timecard timecard = new HarvestHelper().getTimecard(email, month, year);
+		
 		return timecard;
 	}
 
@@ -72,8 +73,8 @@ public class YourFirstAPI {
 	 * 
 	 * @throws ParseException
 	 */
-	@ApiMethod(name = "dummyReportTimecards")
-	public ArrayList<Timecard> dummyReportTimecards(
+	@ApiMethod(name = "reportTimecards")
+	public ArrayList<Timecard> reportTimecards(
 			@Named("token") String token, @Named("month") int month,
 			@Named("year") int year) {
 
@@ -82,7 +83,10 @@ public class YourFirstAPI {
 		ArrayList<Timecard> timecards = new ArrayList<Timecard>();
 
 		for (String report : reports) {
-			Timecard reportTimecard = generateFakeTimecard(report, month, year);
+			
+			//Timecard reportTimecard = generateFakeTimecard(report, month, year);
+			Timecard reportTimecard = new HarvestHelper().getTimecard(report, month, year);
+			
 			reportTimecard.submissionStatus = getReportTimecardStatus(token,
 					month, year, report);
 			timecards.add(reportTimecard);
@@ -181,53 +185,53 @@ public class YourFirstAPI {
 		return result;
 	}
 
-	private Timecard generateFakeTimecard(String email, int month, int year) {
-		Timecard timecard = new Timecard();
-		timecard.user = email;
-
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(Calendar.YEAR, year);
-		calendar.set(Calendar.MONTH, month - 1);
-
-		if (email != "") {
-			for (int i = 0; i < calendar
-					.getActualMaximum(Calendar.DAY_OF_MONTH); i++) {
-				calendar.set(Calendar.DAY_OF_MONTH, i + 1);
-				addFakeTimecardDay(timecard, calendar);
-			}
-		}
-
-		timecard.summaryWorkedHrs = 132.0;
-		timecard.summarySickLeave = 16.0;
-		timecard.summaryAnnualLeave = 32.0;
-
-		return timecard;
-	}
-
-	private void addFakeTimecardDay(Timecard timecard, Calendar calendar) {
-		TimecardDay day = new TimecardDay();
-
-		day.setDate(calendar.getTime());
-		switch (calendar.get(Calendar.DAY_OF_WEEK)) {
-		case Calendar.MONDAY:
-		case Calendar.TUESDAY:
-		case Calendar.WEDNESDAY:
-			day.setWorkHours(8.0);
-			break;
-		case Calendar.THURSDAY:
-			day.setWorkHours(4.0);
-			day.setSick(4.0);
-			break;
-		case Calendar.FRIDAY:
-			day.setAnnual(8.0);
-			day.setReportedHours(40.0);
-			break;
-		default:
-			break;
-		}
-
-		timecard.days.add(day);
-	}
+//	private Timecard generateFakeTimecard(String email, int month, int year) {
+//		Timecard timecard = new Timecard();
+//		timecard.user = email;
+//
+//		Calendar calendar = Calendar.getInstance();
+//		calendar.set(Calendar.YEAR, year);
+//		calendar.set(Calendar.MONTH, month - 1);
+//
+//		if (email != "") {
+//			for (int i = 0; i < calendar
+//					.getActualMaximum(Calendar.DAY_OF_MONTH); i++) {
+//				calendar.set(Calendar.DAY_OF_MONTH, i + 1);
+//				addFakeTimecardDay(timecard, calendar);
+//			}
+//		}
+//
+//		timecard.summaryWorkedHrs = 132.0;
+//		timecard.summarySickLeave = 16.0;
+//		timecard.summaryAnnualLeave = 32.0;
+//
+//		return timecard;
+//	}
+//
+//	private void addFakeTimecardDay(Timecard timecard, Calendar calendar) {
+//		TimecardDay day = new TimecardDay();
+//
+//		day.setDate(calendar.getTime());
+//		switch (calendar.get(Calendar.DAY_OF_WEEK)) {
+//		case Calendar.MONDAY:
+//		case Calendar.TUESDAY:
+//		case Calendar.WEDNESDAY:
+//			day.setWorkHours(8.0);
+//			break;
+//		case Calendar.THURSDAY:
+//			day.setWorkHours(4.0);
+//			day.setSick(4.0);
+//			break;
+//		case Calendar.FRIDAY:
+//			day.setAnnual(8.0);
+//			day.setReportedHours(40.0);
+//			break;
+//		default:
+//			break;
+//		}
+//
+//		timecard.days.add(day);
+//	}
 
 	/**
 	 * This endpoint makes up Harvest data
@@ -349,7 +353,10 @@ public class YourFirstAPI {
 		// create new sheet file
 		// share with group and submitter
 		// get timecard data
-		Timecard timecard = generateFakeTimecard(email, month, year);
+		//Timecard timecard = generateFakeTimecard(email, month, year);
+		Timecard timecard = new HarvestHelper().getTimecard(email, month, year);
+		
+		
 		String timesheetTitle = email + "_(Pending)";
 		timesheetId = goog.createNewDriveSheet(drive, timesheetTitle,
 				monthFolderId, timecard.getBaseCSV()).getId();
@@ -467,8 +474,9 @@ public class YourFirstAPI {
 					// create new sheet file
 					// share with group and submitter
 					// get timecard data
-					Timecard timecard = generateFakeTimecard(reportEmail,
-							month, year);
+					//Timecard timecard = generateFakeTimecard(reportEmail, month, year);
+					Timecard timecard = new HarvestHelper().getTimecard(reportEmail, month, year);
+					
 					String timesheetTitle = reportEmail + "_(Approved)";
 					String content = timecard.getBaseCSV() + "Approved by "
 							+ email + " on " + getNowDateString();
