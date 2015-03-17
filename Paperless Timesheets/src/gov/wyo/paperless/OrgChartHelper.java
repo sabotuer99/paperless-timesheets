@@ -25,9 +25,28 @@ public class OrgChartHelper {
 			e.printStackTrace();
 		}
 		
-		return person;
-			
+		return person;		
 	}
+	
+	public OrgChartPerson getSupervisor(String email){
+		
+		String targetUrl = "https://wyoorgdev.appspot.com/_ah/api/personEndpoint/v1/getSupervisor?email=" + email.toLowerCase();
+		OrgChartPerson person = new OrgChartPerson();
+
+		try {
+			
+			String response = new HttpHelper().sendGet(targetUrl);		
+			JSONObject personJson = new JSONObject(new JSONTokener(response));
+			person = parsePersonJson(personJson);
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return person;			
+	}
+	
 	
 	public OrgChartPerson parsePersonJson(JSONObject personJson){
 		
@@ -68,7 +87,6 @@ public class OrgChartHelper {
 		}
 		
 		return team;
-			
 	}
 	
 	public ArrayList<OrgChartTeam> getTeamChildred(String id){
@@ -87,8 +105,7 @@ public class OrgChartHelper {
 			e.printStackTrace();
 		}
 		
-		return teams;
-			
+		return teams;	
 	}
 	
 	public OrgChartTeam parseTeamJson(JSONObject teamJson){
@@ -172,6 +189,16 @@ public class OrgChartHelper {
 		}
 		
 		return reports;
+	}
+	
+	public String getSupervisorEmail(String email){
+		System.out.println("Search email: " + email);
+		
+		OrgChartPerson person = getSupervisor(email);
+		
+		System.out.println("Person found: " + person.email);
+
+		return person.email;
 	}
 	
 }

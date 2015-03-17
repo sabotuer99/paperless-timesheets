@@ -31,6 +31,8 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.ParentReference;
 import com.google.api.services.drive.model.Permission;
+import com.google.api.services.drive.model.Property;
+import com.google.appengine.labs.repackaged.org.json.JSONArray;
 import com.google.appengine.labs.repackaged.org.json.JSONException;
 import com.google.appengine.labs.repackaged.org.json.JSONObject;
 import com.google.appengine.labs.repackaged.org.json.JSONTokener;
@@ -61,11 +63,11 @@ public class GoogleHelper {
 		String content = ",\n,";
 		Drive drive = getDriveService(credential);
 		return createNewDriveFile(drive, title, metaMimeType, contentMimeType,
-				content, null, true);
+				content, null, true, "TESTALIAS" + now.toString());
 
 	}
 
-	public File createNewTestFolder(String accessToken, String parentId) {
+	public File createNewTestFolder(String accessToken, String parentId, String alias) {
 
 		GoogleCredential credential = new GoogleCredential()
 				.setAccessToken(accessToken);
@@ -80,7 +82,7 @@ public class GoogleHelper {
 		}
 
 		return createNewDriveFile(drive, title, metaMimeType, contentMimeType,
-				content, parentId, true);
+				content, parentId, true, alias);
 	}
 
 	public WorksheetEntry updateTestWorksheet(File sheetFile, String accessToken)
@@ -181,12 +183,20 @@ public class GoogleHelper {
 	
 	public File createNewDriveFile(Drive drive, String title,
 			String metaMimeType, String contentMimeType, String content,
-			String parentId, boolean doConvert) {
+			String parentId, boolean doConvert, String alias) {
 
 		File fileMetadata = new File();
 		fileMetadata.setTitle(title);
 		fileMetadata.setMimeType(metaMimeType);
+		
+		//add custom property 'alias' to make file search more efficient
+		//ArrayList<Property> properties = new ArrayList<Property>();
+		Property aliasProperty = new Property();
+		aliasProperty.setKey("alias");
+		aliasProperty.setValue(alias);
+		aliasProperty.setVisibility("PUBLIC");
 
+		System.out.println(alias);
 		// set parents if present
 		if (parentId != null && !parentId.isEmpty()) {
 			ParentReference newParent = new ParentReference();
@@ -208,6 +218,11 @@ public class GoogleHelper {
 					mediaContent);
 			insert.setConvert(doConvert);
 			sheet = insert.execute();
+			
+			Drive.Properties.Insert propInsert = drive.properties().insert(sheet.getId(), aliasProperty);
+			aliasProperty = propInsert.execute();
+			System.out.println(aliasProperty.getSelfLink());
+			
 		} catch (IOException e) {
 			sheet = new File();
 			e.printStackTrace();
@@ -215,12 +230,12 @@ public class GoogleHelper {
 		return sheet;
 	}
 
-	public File createNewDriveFolder(Drive drive, String title,	String parentId){
-		return createNewDriveFile(drive, title, "application/vnd.google-apps.folder", "application/json", "", parentId, false);
+	public File createNewDriveFolder(Drive drive, String title,	String parentId, String alias){
+		return createNewDriveFile(drive, title, "application/vnd.google-apps.folder", "application/json", "", parentId, false, alias);
 	}
 	
-	public File createNewDriveSheet(Drive drive, String title,	String parentId, String csvContent){
-		return createNewDriveFile(drive, title, "application/vnd.google-apps.spreadsheet", "text/csv", csvContent, parentId, true);
+	public File createNewDriveSheet(Drive drive, String title,	String parentId, String csvContent, String alias){
+		return createNewDriveFile(drive, title, "application/vnd.google-apps.spreadsheet", "text/csv", csvContent, parentId, true, alias);
 	}
 	
 	public Drive getDriveService(GoogleCredential credential) {
@@ -448,6 +463,49 @@ public class GoogleHelper {
 		String url = "https://www.googleapis.com/drive/v2/files?access_token="
 				+ accessToken + "&q=" + query;
 
+		String fileList = getFileListJson(url);
+
+		String id = "";
+		ArrayList<String> ids = parseFileListIds(fileList);
+		if(ids.size() > 0){
+			id = ids.get(0);
+		}
+
+		return id;
+	}
+	
+	public String findFileIdByAlias(String accessToken, String alias) {
+		String query;
+		try {
+
+			String queryUnencoded = "properties has { key='alias' and value='" + alias + "' and visibility='PUBLIC'}";			
+			
+			query = URLEncoder.encode(queryUnencoded, "UTF-8");
+			
+			System.out.print(query);
+			
+		} catch (UnsupportedEncodingException e) {
+			// query should be such that the result is empty
+			query = new Random().toString();
+			e.printStackTrace();
+		}
+
+		String url = "https://www.googleapis.com/drive/v2/files?access_token="
+				+ accessToken + "&q=" + query;
+
+		String fileList = getFileListJson(url);
+
+		String id = "";
+		ArrayList<String> ids = parseFileListIds(fileList);
+		if(ids.size() > 0){
+			id = ids.get(0);
+		}
+
+		return id;
+	}
+	
+
+	private String getFileListJson(String url) {
 		String fileList = "";
 		for (int i = 0; fileList == "" && i < 5; i++) {
 			try {
@@ -457,26 +515,49 @@ public class GoogleHelper {
 			}
 		}
 		System.out.print(fileList);
+		return fileList;
+	}
 
-		String id;
+	private ArrayList<String> parseFileListIds(String fileList) {
+		ArrayList<String> ids = new ArrayList<String>();;
 
 		try {
 			JSONObject json = new JSONObject(new JSONTokener(fileList));
 
 			if (json.has("items") && json.getJSONArray("items").length() > 0) {
-				id = json.getJSONArray("items").getJSONObject(0)
-						.getString("id");
-			} else {
-				id = "";
+				JSONArray items = json.getJSONArray("items");
+				for (int i = 0; i < items.length(); i++) {
+					ids.add(items.getJSONObject(i).getString("id"));
+				}			
 			}
-
 		} catch (JSONException e) {
-			id = "";
 			e.printStackTrace();
 		}
-
-		return id;
+		return ids;
 	}
+	
+	
+	public void deleteAllServiceAccountFiles(){
+		ArrayList<String> ids = getServiceAccountFileList();
+		Drive drive = getServiceAccountDriveService();
+		for (String id : ids) {
+			deleteFile(drive, id);
+		}
+	}
+	
+	
+	public ArrayList<String> getServiceAccountFileList(){
+		GoogleCredential serviceCred = getServiceAccountCredential();
+		
+		String url = "https://www.googleapis.com/drive/v2/files?access_token=" + serviceCred.getAccessToken();
+		
+		String fileList = getFileListJson(url);
+		
+		ArrayList<String> ids = parseFileListIds(fileList);
+		
+		return ids;
+	}
+	
 
 	public void deleteAllWorksheetRows(WorksheetEntry worksheet, SpreadsheetService service) {
 			
