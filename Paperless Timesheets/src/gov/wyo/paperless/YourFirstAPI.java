@@ -3,7 +3,7 @@ package gov.wyo.paperless;
 import gov.wyo.paperless.GoogleHelper.AccountTypes;
 import gov.wyo.paperless.GoogleHelper.FileRoles;
 
-import java.io.IOException;
+//import java.io.IOException;
 //import java.security.GeneralSecurityException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -17,11 +17,11 @@ import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.model.File;
+//import com.google.api.services.drive.model.File;
 import com.google.gdata.client.spreadsheet.SpreadsheetService;
 import com.google.gdata.data.spreadsheet.SpreadsheetEntry;
-import com.google.gdata.data.spreadsheet.WorksheetEntry;
-import com.google.gdata.util.ServiceException;
+//import com.google.gdata.data.spreadsheet.WorksheetEntry;
+//import com.google.gdata.util.ServiceException;
 
 import javax.inject.Named;
 
@@ -57,22 +57,6 @@ public class YourFirstAPI {
 			
 		return response;
 	}
-	
-	
-
-	/** This endpoint retrieves Harvest data */
-//	@ApiMethod(name = "timecard")
-//	public MyBean timecard(@Named("token") String token) {
-//
-//		String targetURL = "";
-//		String urlParameters = "";
-//		String harvestData = new HttpHelper().executePost(targetURL,
-//				urlParameters);
-//
-//		MyBean response = new MyBean();
-//		response.setData(harvestData);
-//		return response;
-//	}
 
 	/**
 	 * This endpoint makes up Harvest data
@@ -120,142 +104,10 @@ public class YourFirstAPI {
 	private ArrayList<String> getReports(String email) {
 		ArrayList<String> reports = new ArrayList<String>();
 
-		
-		
-//		if (email == "josh.soffe@wyo.gov") {
-//			reports.add("troy.whorten@wyo.gov");
-//			reports.add("paul.ogle@wyo.gov");
-//			reports.add("tyler.bjornestad@wyo.gov");
-//			reports.add("tyler.christopherson@wyo.gov");
-//			reports.add("matt.pfister@wyo.gov");
-//			reports.add("kim.turner@wyo.gov");
-//		} else {
-//			reports.add("test.user1@wyo.gov");
-//			reports.add("test.user2@wyo.gov");
-//			reports.add("test.user3@wyo.gov");
-//			reports.add(email);
-//		}
-		
 		reports = new OrgChartHelper().getReports(email);
 
 		return reports;
 	}
-
-	/**
-	 * This endpoint writes timesheet data to Google Drive spreadsheet
-	 * 
-	 * @throws ParseException
-	 */
-//	@ApiMethod(name = "dummyGoogleSheet")
-//	public MyBean dummyGoogleSheet(@Named("token") String token,
-//			@Named("month") int month, @Named("year") int year) {
-//
-//		File sheet = new File();
-//		GoogleHelper goog = new GoogleHelper();
-//		WorksheetEntry worksheet = new WorksheetEntry();
-//
-//		// Create a new spreadsheet
-//		try {
-//			sheet = goog.createNewTestSheet(token);
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//
-//		// Update the default worksheet
-//		try {
-//			worksheet = goog.updateTestWorksheet(sheet, token);
-//		} catch (IOException | ServiceException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//
-//		MyBean result = new MyBean();
-//		result.setData(sheet.getId() + " | " + worksheet.getId());
-//		return result;
-//	}
-
-	/**
-	 * This endpoint writes timesheet data to Google Drive spreadsheet
-	 * 
-	 * @throws GeneralSecurityException
-	 * 
-	 * @throws ParseException
-	 */
-//	@ApiMethod(name = "dummyGoogleFolder")
-//	public MyBean dummyGoogleFolder(@Named("token") String token,
-//			@Named("month") int month, @Named("year") int year)
-//			throws GeneralSecurityException, IOException {
-//
-//		// String email = validateEmailFromToken(token);
-//		// Timecard timecard = generateFakeTimecard(email, month, year);
-//
-//		GoogleHelper goog = new GoogleHelper();
-//
-//		// return timecard;
-//		File folder = new File();
-//		File subfolder = new File();
-//		File sharedsubfolder = new File();
-//
-//		folder = goog.createNewTestFolder(token, "");
-//		subfolder = goog.createNewTestFolder(token, folder.getId());
-//		sharedsubfolder = goog
-//				.createNewTestFolder(token,
-//						"0BxN4AmtAyCpGfkU3YW9DMXQ3VGY2X2xHNHYycUZOQnRRbEdBVDhvRzVPcDhIYTRVck5oMkk");
-//
-//		MyBean result = new MyBean();
-//		result.setData(folder.getId() + " | " + subfolder.getId() + " | "
-//				+ sharedsubfolder.getId());
-//		return result;
-//	}
-
-//	private Timecard generateFakeTimecard(String email, int month, int year) {
-//		Timecard timecard = new Timecard();
-//		timecard.user = email;
-//
-//		Calendar calendar = Calendar.getInstance();
-//		calendar.set(Calendar.YEAR, year);
-//		calendar.set(Calendar.MONTH, month - 1);
-//
-//		if (email != "") {
-//			for (int i = 0; i < calendar
-//					.getActualMaximum(Calendar.DAY_OF_MONTH); i++) {
-//				calendar.set(Calendar.DAY_OF_MONTH, i + 1);
-//				addFakeTimecardDay(timecard, calendar);
-//			}
-//		}
-//
-//		timecard.summaryWorkedHrs = 132.0;
-//		timecard.summarySickLeave = 16.0;
-//		timecard.summaryAnnualLeave = 32.0;
-//
-//		return timecard;
-//	}
-//
-//	private void addFakeTimecardDay(Timecard timecard, Calendar calendar) {
-//		TimecardDay day = new TimecardDay();
-//
-//		day.setDate(calendar.getTime());
-//		switch (calendar.get(Calendar.DAY_OF_WEEK)) {
-//		case Calendar.MONDAY:
-//		case Calendar.TUESDAY:
-//		case Calendar.WEDNESDAY:
-//			day.setWorkHours(8.0);
-//			break;
-//		case Calendar.THURSDAY:
-//			day.setWorkHours(4.0);
-//			day.setSick(4.0);
-//			break;
-//		case Calendar.FRIDAY:
-//			day.setAnnual(8.0);
-//			day.setReportedHours(40.0);
-//			break;
-//		default:
-//			break;
-//		}
-//
-//		timecard.days.add(day);
-//	}
 
 	/**
 	 * This endpoint makes up Harvest data
@@ -300,7 +152,7 @@ public class YourFirstAPI {
 
 			if (email != "") {
 				// get service account credential
-				submitTimecard(month, year, goog, email);
+				submitTimecard(month, year, goog, email, email);
 				response.setData("SUCCESS");
 
 			} else {
@@ -316,77 +168,42 @@ public class YourFirstAPI {
 	}
 
 	private void submitTimecard(Integer month, Integer year, GoogleHelper goog,
-			String email) {
+			String email, String submitter) {
 		GoogleCredential serviceCred = goog
 				.getServiceAccountCredential();
 
 		// get drive service with service account
 		Drive drive = goog.getDriveService(serviceCred);
-
-		// find or create root folder
-		// if new, share with group
-		String rootFolderTitle = "Timecards";
-		String rootFolderId = goog.findFolderId(
-				serviceCred.getAccessToken(), rootFolderTitle, null);
-		if (rootFolderId == "") {
-			rootFolderId = goog.createNewDriveFolder(drive,
-					rootFolderTitle, null, rootFolderTitle).getId();
-			goog.insertPermission(drive, rootFolderId,
-					Constants.TIMECARD_GROUP,
-					AccountTypes.group, FileRoles.writer);
-		}
-
-		// find or create year folder
-		// if new, share with group
-		String yearFolderTitle = year.toString();
-		String yearFolderId = goog.findFolderId(
-				serviceCred.getAccessToken(), yearFolderTitle,
-				rootFolderId);
-		if (yearFolderId == "") {
-			yearFolderId = goog.createNewDriveFolder(drive,
-					yearFolderTitle, rootFolderId, rootFolderTitle + yearFolderTitle).getId();
-			goog.insertPermission(drive, yearFolderId,
-					Constants.TIMECARD_GROUP,
-					AccountTypes.group, FileRoles.writer);
-		}
-
-		// find or create month folder
-		// if new, share with group
-		Calendar cal = Calendar.getInstance();
-		cal.set(year, month - 1, 1);
-		String monthFolderTitle = new SimpleDateFormat("MMMM")
-				.format(cal.getTime());
-		String monthFolderId = goog.findFolderId(
-				serviceCred.getAccessToken(), monthFolderTitle,
-				yearFolderId);
+	
+//		String monthFolderId = goog.findFolderId(serviceCred.getAccessToken(), monthFolderTitle,yearFolderId);
+		String monthFolderId = goog.findFileIdByAlias(serviceCred.getAccessToken(), getMonthFolderAlias(month, year));		
 		if (monthFolderId == "") {
-			monthFolderId = goog.createNewDriveFolder(drive,
-					monthFolderTitle, yearFolderId, rootFolderTitle + yearFolderTitle + monthFolderTitle).getId();
-			goog.insertPermission(drive, monthFolderId,
-					Constants.TIMECARD_GROUP,
-					AccountTypes.group, FileRoles.writer);
+			monthFolderId = createMonthFolderPath(month, year, goog, serviceCred, drive);
 		}
-
+						
 		// find and delete existing timecard sheet file
-		String timesheetId = goog.findSheetId(
-				serviceCred.getAccessToken(), email, monthFolderId);
+//		String timesheetId = goog.findSheetId(
+//				serviceCred.getAccessToken(), email, monthFolderId);
+		String timesheetId = goog.findFileIdByAlias(serviceCred.getAccessToken(), getUserAlias(email, month, year));
 		if (timesheetId != null && timesheetId.length() > 0) {
 			goog.deleteFile(drive, timesheetId);
 		}
-
+		
 		// create new sheet file
 		// share with group and submitter
 		// get timecard data
 		//Timecard timecard = generateFakeTimecard(email, month, year);
-		Timecard timecard = new HarvestHelper().getTimecard(email, month, year);
-		
+		Timecard timecard = new HarvestHelper().getTimecard(email, month, year);	
 		
 		String timesheetTitle = email + "_(Pending)";
+		String content = timecard.getBaseCSV() + "Submitted by "
+				+ submitter + " on " + getNowDateString();
 		timesheetId = goog.createNewDriveSheet(drive, timesheetTitle,
-				monthFolderId, timecard.getBaseCSV(), getUserAlias(email, month, year)).getId();
+				monthFolderId, content, getUserAlias(email, month, year)).getId();
 		goog.insertPermission(drive, timesheetId,
 				Constants.TIMECARD_GROUP,
 				AccountTypes.group, FileRoles.writer);
+		
 		// this works its just annoying...
 		String supervisorEmail = new OrgChartHelper().getSupervisorEmail(email);
 		if(email != null){
@@ -395,6 +212,62 @@ public class YourFirstAPI {
 		}
 	}
 
+	private String createMonthFolderPath(Integer month, Integer year, GoogleHelper goog, GoogleCredential serviceCred, Drive drive){
+		// find or create root folder
+		// if new, share with group
+		String rootFolderTitle = "Timecards";
+		String yearFolderTitle = year.toString();
+		String monthFolderTitle = getMonthName(month);
+		String rootFolderAlias = "Timecards";
+		String yearFolderAlias = rootFolderTitle + yearFolderTitle;
+		String monthFolderAlias = getMonthFolderAlias(month, year);	
+
+		// find or create year folder
+		// if new, share with group	
+		String yearFolderId = goog.findFileIdByAlias(serviceCred.getAccessToken(), yearFolderAlias);	
+		if (yearFolderId == "") {
+			
+			// find or create root folder
+			// if new, share with group	
+			String rootFolderId = goog.findFileIdByAlias(serviceCred.getAccessToken(), rootFolderAlias);
+			if (rootFolderId == "") {
+				rootFolderId = goog.createNewDriveFolder(drive,
+						rootFolderTitle, null, rootFolderAlias).getId();
+				goog.insertPermission(drive, rootFolderId,
+						Constants.TIMECARD_GROUP,
+						AccountTypes.group, FileRoles.writer);
+			}
+			
+			yearFolderId = goog.createNewDriveFolder(drive,
+					yearFolderTitle, rootFolderId, yearFolderAlias).getId();
+			goog.insertPermission(drive, yearFolderId,
+					Constants.TIMECARD_GROUP,
+					AccountTypes.group, FileRoles.writer);
+		}
+		
+		// create month folder, share with group
+		String monthFolderId = goog.createNewDriveFolder(drive,
+				monthFolderTitle, yearFolderId, monthFolderAlias).getId();
+		goog.insertPermission(drive, monthFolderId,
+				Constants.TIMECARD_GROUP,
+				AccountTypes.group, FileRoles.writer);
+		
+		return monthFolderId;
+		
+	}
+	
+	private String getMonthName(Integer month) {
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.MONTH, month - 1);
+		String monthName = new SimpleDateFormat("MMMM")
+				.format(cal.getTime());
+		return monthName;
+	}
+	
+	private String getMonthFolderAlias(Integer month, Integer year) {
+		return year.toString() + getMonthName(month);
+	}
+	
 	@ApiMethod(name = "checkReportTimecardStatus")
 	public MyBean checkReportTimecardStatus(
 			@Named("accessToken") String accessToken,
@@ -432,7 +305,7 @@ public class YourFirstAPI {
 					break label;
 				}			
 
-				submitTimecard(month, year, goog, reportEmail);
+				submitTimecard(month, year, goog, reportEmail, email);
 
 				response.setData("SUCCESS");
 				
@@ -488,7 +361,7 @@ public class YourFirstAPI {
 
 					// get folder id of timecard
 					String monthFolderId = getMonthFolderId(month, year,
-							serviceCred, goog, drive);
+							serviceCred, goog);
 
 					// find and delete existing timecard sheet file
 					String timesheetId = goog.findSheetId(
@@ -530,16 +403,10 @@ public class YourFirstAPI {
 	}
 
 	private String getUserAlias(String email, Integer month, Integer year){
-		String yearFolderTitle = year.toString();
 		
-		Calendar cal = Calendar.getInstance();
-		cal.set(year, month - 1, 1);
-		String monthFolderTitle = new SimpleDateFormat("MMMM")
-				.format(cal.getTime());
-		
-		return yearFolderTitle + monthFolderTitle + email;	
+		String monthFolderAlias = getMonthFolderAlias(month, year);	
+		return monthFolderAlias + email;	
 	}
-	
 	
 	private String getNowDateString() {
 		Date date = new Date();
@@ -547,33 +414,36 @@ public class YourFirstAPI {
 		return sdf.format(date);
 	}
 
-
+//	private String getMonthFolderId(Integer month, Integer year,
+//			GoogleCredential serviceCred, GoogleHelper goog, Drive drive) {
+//
+//		String monthFolderId = "";
+//
+//		// find root folder
+//		String rootFolderTitle = "Timecards";
+//		String rootFolderId = goog.findFolderId(serviceCred.getAccessToken(),
+//				rootFolderTitle, null);
+//		if (rootFolderId != "") {
+//			// find year folder
+//			String yearFolderTitle = year.toString();
+//			String yearFolderId = goog
+//					.findFolderId(serviceCred.getAccessToken(),
+//							yearFolderTitle, rootFolderId);
+//			if (yearFolderId != "") {
+//				String monthFolderTitle = getMonthFolderAlias(month, year);
+//				monthFolderId = goog.findFolderId(serviceCred.getAccessToken(),
+//						monthFolderTitle, yearFolderId);
+//			}
+//		}
+//
+//		return monthFolderId;
+//	}	
+	
 	private String getMonthFolderId(Integer month, Integer year,
-			GoogleCredential serviceCred, GoogleHelper goog, Drive drive) {
-
-		String monthFolderId = "";
-
-		// find root folder
-		String rootFolderTitle = "Timecards";
-		String rootFolderId = goog.findFolderId(serviceCred.getAccessToken(),
-				rootFolderTitle, null);
-		if (rootFolderId != "") {
-			// find year folder
-			String yearFolderTitle = year.toString();
-			String yearFolderId = goog
-					.findFolderId(serviceCred.getAccessToken(),
-							yearFolderTitle, rootFolderId);
-			if (yearFolderId != "") {
-				// find month folder
-				Calendar cal = Calendar.getInstance();
-				cal.set(year, month - 1, 1);
-				String monthFolderTitle = new SimpleDateFormat("MMMM")
-						.format(cal.getTime());
-				monthFolderId = goog.findFolderId(serviceCred.getAccessToken(),
-						monthFolderTitle, yearFolderId);
-			}
-		}
-
+	GoogleCredential serviceCred, GoogleHelper goog) {
+		
+		String monthFolderId = goog.findFileIdByAlias(serviceCred.getAccessToken(), getMonthFolderAlias(month, year));
+		
 		return monthFolderId;
 	}
 
@@ -624,11 +494,7 @@ public class YourFirstAPI {
 					break label;
 				}
 
-				// find month folder
-				Calendar cal = Calendar.getInstance();
-				cal.set(year, month - 1, 1);
-				String monthFolderTitle = new SimpleDateFormat("MMMM")
-						.format(cal.getTime());
+				String monthFolderTitle = getMonthFolderAlias(month, year);
 				String monthFolderId = goog.findFolderId(
 						serviceCred.getAccessToken(), monthFolderTitle,
 						yearFolderId);
@@ -678,3 +544,158 @@ public class YourFirstAPI {
 	}
 
 }
+
+
+//private ArrayList<String> getReports(String email) {
+//	ArrayList<String> reports = new ArrayList<String>();
+//
+//	
+//	
+////	if (email == "josh.soffe@wyo.gov") {
+////		reports.add("troy.whorten@wyo.gov");
+////		reports.add("paul.ogle@wyo.gov");
+////		reports.add("tyler.bjornestad@wyo.gov");
+////		reports.add("tyler.christopherson@wyo.gov");
+////		reports.add("matt.pfister@wyo.gov");
+////		reports.add("kim.turner@wyo.gov");
+////	} else {
+////		reports.add("test.user1@wyo.gov");
+////		reports.add("test.user2@wyo.gov");
+////		reports.add("test.user3@wyo.gov");
+////		reports.add(email);
+////	}
+//	
+//	reports = new OrgChartHelper().getReports(email);
+//
+//	return reports;
+//}
+
+/** This endpoint retrieves Harvest data */
+//@ApiMethod(name = "timecard")
+//public MyBean timecard(@Named("token") String token) {
+//
+//	String targetURL = "";
+//	String urlParameters = "";
+//	String harvestData = new HttpHelper().executePost(targetURL,
+//			urlParameters);
+//
+//	MyBean response = new MyBean();
+//	response.setData(harvestData);
+//	return response;
+//}
+
+/**
+ * This endpoint writes timesheet data to Google Drive spreadsheet
+ * 
+ * @throws ParseException
+ */
+//@ApiMethod(name = "dummyGoogleSheet")
+//public MyBean dummyGoogleSheet(@Named("token") String token,
+//		@Named("month") int month, @Named("year") int year) {
+//
+//	File sheet = new File();
+//	GoogleHelper goog = new GoogleHelper();
+//	WorksheetEntry worksheet = new WorksheetEntry();
+//
+//	// Create a new spreadsheet
+//	try {
+//		sheet = goog.createNewTestSheet(token);
+//	} catch (IOException e) {
+//		// TODO Auto-generated catch block
+//		e.printStackTrace();
+//	}
+//
+//	// Update the default worksheet
+//	try {
+//		worksheet = goog.updateTestWorksheet(sheet, token);
+//	} catch (IOException | ServiceException e) {
+//		// TODO Auto-generated catch block
+//		e.printStackTrace();
+//	}
+//
+//	MyBean result = new MyBean();
+//	result.setData(sheet.getId() + " | " + worksheet.getId());
+//	return result;
+//}
+
+/**
+ * This endpoint writes timesheet data to Google Drive spreadsheet
+ * 
+ * @throws GeneralSecurityException
+ * 
+ * @throws ParseException
+ */
+//@ApiMethod(name = "dummyGoogleFolder")
+//public MyBean dummyGoogleFolder(@Named("token") String token,
+//		@Named("month") int month, @Named("year") int year)
+//		throws GeneralSecurityException, IOException {
+//
+//	// String email = validateEmailFromToken(token);
+//	// Timecard timecard = generateFakeTimecard(email, month, year);
+//
+//	GoogleHelper goog = new GoogleHelper();
+//
+//	// return timecard;
+//	File folder = new File();
+//	File subfolder = new File();
+//	File sharedsubfolder = new File();
+//
+//	folder = goog.createNewTestFolder(token, "");
+//	subfolder = goog.createNewTestFolder(token, folder.getId());
+//	sharedsubfolder = goog
+//			.createNewTestFolder(token,
+//					"0BxN4AmtAyCpGfkU3YW9DMXQ3VGY2X2xHNHYycUZOQnRRbEdBVDhvRzVPcDhIYTRVck5oMkk");
+//
+//	MyBean result = new MyBean();
+//	result.setData(folder.getId() + " | " + subfolder.getId() + " | "
+//			+ sharedsubfolder.getId());
+//	return result;
+//}
+
+//private Timecard generateFakeTimecard(String email, int month, int year) {
+//	Timecard timecard = new Timecard();
+//	timecard.user = email;
+//
+//	Calendar calendar = Calendar.getInstance();
+//	calendar.set(Calendar.YEAR, year);
+//	calendar.set(Calendar.MONTH, month - 1);
+//
+//	if (email != "") {
+//		for (int i = 0; i < calendar
+//				.getActualMaximum(Calendar.DAY_OF_MONTH); i++) {
+//			calendar.set(Calendar.DAY_OF_MONTH, i + 1);
+//			addFakeTimecardDay(timecard, calendar);
+//		}
+//	}
+//
+//	timecard.summaryWorkedHrs = 132.0;
+//	timecard.summarySickLeave = 16.0;
+//	timecard.summaryAnnualLeave = 32.0;
+//
+//	return timecard;
+//}
+//
+//private void addFakeTimecardDay(Timecard timecard, Calendar calendar) {
+//	TimecardDay day = new TimecardDay();
+//
+//	day.setDate(calendar.getTime());
+//	switch (calendar.get(Calendar.DAY_OF_WEEK)) {
+//	case Calendar.MONDAY:
+//	case Calendar.TUESDAY:
+//	case Calendar.WEDNESDAY:
+//		day.setWorkHours(8.0);
+//		break;
+//	case Calendar.THURSDAY:
+//		day.setWorkHours(4.0);
+//		day.setSick(4.0);
+//		break;
+//	case Calendar.FRIDAY:
+//		day.setAnnual(8.0);
+//		day.setReportedHours(40.0);
+//		break;
+//	default:
+//		break;
+//	}
+//
+//	timecard.days.add(day);
+//}
