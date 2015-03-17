@@ -62,15 +62,22 @@ public class YourFirstAPI {
 		return timecard;
 	}
 
-	/**
-	 * This endpoint makes up Harvest data
-	 * 
-	 * @throws ParseException
-	 */
 	@ApiMethod(name = "reportTimecards")
 	public ArrayList<Timecard> reportTimecards(@Named("token") String token,
 			@Named("month") int month, @Named("year") int year) {
 
+		return getReportTimecardData(token, month, year, false);
+	}
+	
+	@ApiMethod(name = "reportTimecardsStatusOnly")
+	public ArrayList<Timecard> reportTimecardsStatusOnly(@Named("token") String token,
+			@Named("month") int month, @Named("year") int year) {
+
+		return getReportTimecardData(token, month, year, true);
+	}
+
+	private ArrayList<Timecard> getReportTimecardData(String token, int month,
+			int year, boolean statusOnly) {
 		String email = new GoogleHelper().validateEmailFromToken(token);
 		ArrayList<String> reports = getReports(email);
 		ArrayList<Timecard> timecards = new ArrayList<Timecard>();
@@ -79,15 +86,45 @@ public class YourFirstAPI {
 
 			// Timecard reportTimecard = generateFakeTimecard(report, month,
 			// year);
-			Timecard reportTimecard = new HarvestHelper().getTimecard(report,
-					month, year);
-
-			reportTimecard.submissionStatus = getReportTimecardStatus(token,
-					month, year, report);
+			
+			Timecard reportTimecard;
+			
+			if(!statusOnly){
+				reportTimecard = new HarvestHelper().getTimecard(report, month, year);
+			} else {
+				reportTimecard = new Timecard();
+				reportTimecard.user = report;
+			}
+			
+			reportTimecard.submissionStatus = getReportTimecardStatus(token, month, year, report);
 			timecards.add(reportTimecard);
 		}
 
 		return timecards;
+	}
+		
+	
+	@ApiMethod(name = "reportTimecard")
+	public Timecard reportTimecard(@Named("token") String token,
+			@Named("month") int month, @Named("year") int year, @Named("reportEmail") String reportEmail) {
+
+		String email = new GoogleHelper().validateEmailFromToken(token);
+		ArrayList<String> reports = getReports(email);
+		Timecard reportTimecard = new Timecard();
+
+		if(reports.contains(reportEmail)) {
+
+			// Timecard reportTimecard = generateFakeTimecard(report, month,
+			// year);
+			reportTimecard = new HarvestHelper().getTimecard(reportEmail,
+					month, year);
+
+			reportTimecard.submissionStatus = getReportTimecardStatus(token,
+					month, year, reportEmail);
+		}
+
+		System.out.println(reportTimecard);
+		return reportTimecard;
 	}
 
 	private ArrayList<String> getReports(String email) {

@@ -21,7 +21,7 @@ function getReportTimeCards(access_token){
 	var month = $("#month option:selected").val();
 	var year = $("#year option:selected").val();
 	var url = protocol + "//" + window.location.host
-						+ "/_ah/api/paperless/v1/reportTimecards/"
+						+ "/_ah/api/paperless/v1/reportTimecardsStatusOnly/"
 						+ access_token + "/" + month + "/" + year;
 	$.ajax({
 		type : "POST",
@@ -30,6 +30,46 @@ function getReportTimeCards(access_token){
 		dataType : "text"
 	});
 }
+
+function getReportTimeCard(access_token, reportEmail){
+	$("#refreshLoader").show();
+	
+	var protocol = window.location.hostname == "localhost" ? "http:" : "https:";
+	var month = $("#month option:selected").val();
+	var year = $("#year option:selected").val();
+	var url = protocol + "//" + window.location.host
+						+ "/_ah/api/paperless/v1/reportTimecard/"
+						+ access_token + "/" + month + "/" + year + "/" + reportEmail;
+	$.ajax({
+		type : "POST",
+		url : url,
+		success : reportTimecardSuccess,
+		dataType : "text"
+	});
+}
+
+function reportTimecardSuccess(timecardString) {
+	
+	//console.log("called success: " + timecardsString);
+	var timecard = JSON.parse(timecardString);
+
+	console.log(timecard);
+//	if(timecard.user == "") {
+//		window.access_token = undefined;
+//		return;
+//	}
+	
+	var timecardDivId = "#" + timecardId(timecard.user);
+	var timecardDiv = $(timecardDivId);
+	
+	console.log(timecardDiv);
+	
+	timecardDiv.html(renderTimecard(timecard));
+			
+	var loaderId = "#" + timecardLoaderId(timecard.user);
+	$(loaderId).hide();
+}
+
 
 function success(timecardsString) {
 	
@@ -54,6 +94,7 @@ function renderTimecards(timecards){
 	if(timecards.items && timecards.items.length && timecards.items.length > 0){
 		timecards.items.forEach(function (timecard) {
 			panels += renderAccordionPanel(timecard);
+			getReportTimeCard(window.access_token, timecard.user)
 		});
 	}
 	
@@ -96,8 +137,9 @@ function renderAccordionPanel(timecard){
 					    '</h4>'+
 					'</div>'+
 					'<div id="' + hrefId + '" class="panel-collapse collapse">'+
-					    '<div class="panel-body">'+
-					        renderTimecard(timecard) +
+					    '<div id="' + timecardId(timecard.user) + '" class="panel-body">'+
+					    	'<img id="' + timecardLoaderId(timecard.user) + '" alt="ajax loader" src="/assets/img/ajax-loader.gif">' +
+					        //renderTimecard(timecard) +
 					    '</div>'+
 					'</div>'+
 				'</div>';
@@ -132,6 +174,19 @@ function statusId(email){
 	return "STATUS_" + text;
 }
 
+function timecardId(email){
+	var text;
+	if(email && email.replace)
+		text = email.replace(/[\+-\/\:-\?@]/g, '');
+	return "TIMECARD_" + text;
+}
+
+function timecardLoaderId(email){
+	var text;
+	if(email && email.replace)
+		text = email.replace(/[\+-\/\:-\?@]/g, '');
+	return "TIMECARD_LOADER_" + text;
+}
 
 function sendApproveTimecard(email, access_token){
 	var spinnerId = "#" + loaderId(email);
