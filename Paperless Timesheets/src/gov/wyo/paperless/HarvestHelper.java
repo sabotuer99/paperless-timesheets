@@ -82,48 +82,49 @@ public class HarvestHelper {
 		
 		Timecard timecard = new Timecard();
 		
-		timecard.summaryWorkedHrs = viewData.getTimeSheetTotals()[0].totals;
-		timecard.summaryHoliday = viewData.getTimeSheetTotals()[1].totals;
-		timecard.summarySickLeave = viewData.getTimeSheetTotals()[2].totals;
-		timecard.summaryAnnualLeave = viewData.getTimeSheetTotals()[3].totals;
-		timecard.summaryCompUsed = viewData.getTimeSheetTotals()[4].totals;
-		timecard.summaryOnCall = viewData.getTimeSheetTotals()[5].totals;
-		timecard.summaryOtherLeave = viewData.getTimeSheetTotals()[6].totals;
-		timecard.summaryTotalReported = viewData.getTimeSheetTotals()[7].totals;
-		timecard.summaryShiftDiff = viewData.getTimeSheetTotals()[8].totals;
-		timecard.summaryHolidayHrsWorked = viewData.getTimeSheetTotals()[9].totals;
-		timecard.summaryOTHrs = viewData.getTimeSheetTotals()[10].totals;
-		timecard.summarySTHrs = viewData.getTimeSheetTotals()[11].totals;
-		timecard.summaryLastMonthOTPaid = viewData.getTimeSheetTotals()[12].totals;
-		timecard.summaryLastMonthOTOwed = viewData.getTimeSheetTotals()[13].totals;
-		
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(Calendar.YEAR, viewData.getYear());
-		calendar.set(Calendar.MONTH, shortMonthStringToInteger(viewData.getMonth()));
-		
-		for (ViewDataRow viewDataDay : viewData.getTimeSheetValues()) {
-			TimecardDay day = new TimecardDay();
+		if(viewData != null){
+			timecard.summaryWorkedHrs = viewData.getTimeSheetTotals()[0].totals;
+			timecard.summaryHoliday = viewData.getTimeSheetTotals()[1].totals;
+			timecard.summarySickLeave = viewData.getTimeSheetTotals()[2].totals;
+			timecard.summaryAnnualLeave = viewData.getTimeSheetTotals()[3].totals;
+			timecard.summaryCompUsed = viewData.getTimeSheetTotals()[4].totals;
+			timecard.summaryOnCall = viewData.getTimeSheetTotals()[5].totals;
+			timecard.summaryOtherLeave = viewData.getTimeSheetTotals()[6].totals;
+			timecard.summaryTotalReported = viewData.getTimeSheetTotals()[7].totals;
+			timecard.summaryShiftDiff = viewData.getTimeSheetTotals()[8].totals;
+			timecard.summaryHolidayHrsWorked = viewData.getTimeSheetTotals()[9].totals;
+			timecard.summaryOTHrs = viewData.getTimeSheetTotals()[10].totals;
+			timecard.summarySTHrs = viewData.getTimeSheetTotals()[11].totals;
+			timecard.summaryLastMonthOTPaid = viewData.getTimeSheetTotals()[12].totals;
+			timecard.summaryLastMonthOTOwed = viewData.getTimeSheetTotals()[13].totals;
 			
-			calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(viewDataDay.mDate));
+			Calendar calendar = Calendar.getInstance();
+			calendar.set(Calendar.YEAR, viewData.getYear());
+			calendar.set(Calendar.MONTH, shortMonthStringToInteger(viewData.getMonth()));
 			
-			day.setDate(calendar.getTime());
-			day.setWorkHours(viewDataDay.mWorkHours);
-			day.setHoliday(viewDataDay.mHoliday);
-			day.setSick(viewDataDay.mSick);
-			day.setAnnual(viewDataDay.mAnnual);
-			day.setOtherLeave(viewDataDay.mOtherLeave);
-			day.setCompUsed(viewDataDay.mCompUsed);
-			day.setShiftDiff(viewDataDay.mShiftDiff);
-			day.setOnCall(viewDataDay.mOnCall);
-			day.setBase(viewDataDay.mBase);
-			day.setCallback(viewDataDay.mCallBack);
-			day.setReportedHours(viewDataDay.mReportedHours);
-			day.setOtEarned(viewDataDay.mOTEarned);
-			day.setStHours(viewDataDay.mSTHours);
-			
-			timecard.days.add(day);		
+			for (ViewDataRow viewDataDay : viewData.getTimeSheetValues()) {
+				TimecardDay day = new TimecardDay();
+				
+				calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(viewDataDay.mDate));
+				
+				day.setDate(calendar.getTime());
+				day.setWorkHours(viewDataDay.mWorkHours);
+				day.setHoliday(viewDataDay.mHoliday);
+				day.setSick(viewDataDay.mSick);
+				day.setAnnual(viewDataDay.mAnnual);
+				day.setOtherLeave(viewDataDay.mOtherLeave);
+				day.setCompUsed(viewDataDay.mCompUsed);
+				day.setShiftDiff(viewDataDay.mShiftDiff);
+				day.setOnCall(viewDataDay.mOnCall);
+				day.setBase(viewDataDay.mBase);
+				day.setCallback(viewDataDay.mCallBack);
+				day.setReportedHours(viewDataDay.mReportedHours);
+				day.setOtEarned(viewDataDay.mOTEarned);
+				day.setStHours(viewDataDay.mSTHours);
+				
+				timecard.days.add(day);		
+			}
 		}
-		
 		return timecard;
 	}
 	
