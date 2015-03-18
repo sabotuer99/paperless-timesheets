@@ -145,7 +145,7 @@ function renderAccordionPanel(timecard){
 	var panel = '<div class="panel panel-primary">'+
 					'<div class="panel-heading">'+
 					    '<h4 class="panel-title">'+
-					        '<a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#' + hrefId + '">' + timecard.user + '</a>'+
+					        '<a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#' + hrefId + '">' + timecard.fullName + ' (' + timecard.user + ')</a>'+
 					        status + refreshButton +
 					    '</h4>'+
 					'</div>'+

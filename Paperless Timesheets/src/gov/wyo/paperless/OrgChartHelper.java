@@ -161,7 +161,7 @@ public class OrgChartHelper {
 	}	
 	
 	
-	public ArrayList<String> getReports(String email){
+	public ArrayList<String> getReportsEmails(String email){
 		
 		System.out.println("Search email: " + email);
 		
@@ -184,6 +184,35 @@ public class OrgChartHelper {
 			for (OrgChartTeam subteam : reportingTeams) {
 				if(subteam != null && subteam.leader != null && subteam.leader.email != null && !subteam.leader.email.equals(email)){
 					reports.add(subteam.leader.email);
+				}
+			}		
+		}
+		
+		return reports;
+	}
+	
+	public ArrayList<OrgChartPerson> getReports(String email){
+		System.out.println("Search email: " + email);
+		
+		OrgChartPerson person = getPerson(email);
+		OrgChartTeam team = getTeam(person.teamId);
+		ArrayList<OrgChartPerson> reports = new ArrayList<OrgChartPerson>();
+		
+		System.out.println("Person found: " + person.email);
+		System.out.println("Team found: " + team.id);
+		
+		if(team != null && team.teamLeaderId != null && team.teamLeaderId.equals(person.id)) {
+			for (OrgChartPerson report : team.members) {				
+				if(report != null && report.email != null && !report.email.equals(email)){
+					reports.add(report);
+				}
+			}
+			
+			//get supervisors of child teams
+			ArrayList<OrgChartTeam> reportingTeams = getTeamChildred(team.id);
+			for (OrgChartTeam subteam : reportingTeams) {
+				if(subteam != null && subteam.leader != null && subteam.leader.email != null && !subteam.leader.email.equals(email)){
+					reports.add(subteam.leader);
 				}
 			}		
 		}

@@ -88,6 +88,7 @@ public class HarvestHelper {
 		Timecard timecard = new Timecard();
 		
 		if(viewData != null){
+			timecard.fullName = viewData.getFirstName() + " " + viewData.getLastName();
 			timecard.summaryWorkedHrs = viewData.getTimeSheetTotals()[0].totals;
 			timecard.summaryHoliday = viewData.getTimeSheetTotals()[1].totals;
 			timecard.summarySickLeave = viewData.getTimeSheetTotals()[2].totals;

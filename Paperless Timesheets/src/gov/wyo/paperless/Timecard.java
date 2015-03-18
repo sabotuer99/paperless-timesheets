@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 
 public class Timecard {
 	public String user = "";
+	public String fullName = "";
 	public String submissionStatus = "";
 	public ArrayList<TimecardDay> days = new ArrayList<TimecardDay>();
 	public Double summaryWorkedHrs = 0.0;

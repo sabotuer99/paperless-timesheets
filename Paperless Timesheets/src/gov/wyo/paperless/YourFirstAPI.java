@@ -79,10 +79,10 @@ public class YourFirstAPI {
 	private ArrayList<Timecard> getReportTimecardData(String token, int month,
 			int year, boolean statusOnly) {
 		String email = new GoogleHelper().validateEmailFromToken(token);
-		ArrayList<String> reports = getReports(email);
+		ArrayList<OrgChartPerson> reports = getReports(email);
 		ArrayList<Timecard> timecards = new ArrayList<Timecard>();
 
-		for (String report : reports) {
+		for (OrgChartPerson report : reports) {
 
 			// Timecard reportTimecard = generateFakeTimecard(report, month,
 			// year);
@@ -90,13 +90,14 @@ public class YourFirstAPI {
 			Timecard reportTimecard;
 			
 			if(!statusOnly){
-				reportTimecard = new HarvestHelper().getTimecard(report, month, year);
+				reportTimecard = new HarvestHelper().getTimecard(report.email, month, year);
 			} else {
-				reportTimecard = new Timecard();
-				reportTimecard.user = report;
+				reportTimecard = new Timecard();				
 			}
 			
-			reportTimecard.submissionStatus = getReportTimecardStatus(token, month, year, report);
+			reportTimecard.user = report.email;
+			reportTimecard.fullName = report.fullName;
+			reportTimecard.submissionStatus = getReportTimecardStatus(token, month, year, report.email);
 			timecards.add(reportTimecard);
 		}
 
@@ -109,28 +110,42 @@ public class YourFirstAPI {
 			@Named("month") int month, @Named("year") int year, @Named("reportEmail") String reportEmail) {
 
 		String email = new GoogleHelper().validateEmailFromToken(token);
-		ArrayList<String> reports = getReports(email);
+		ArrayList<OrgChartPerson> reports = getReports(email);
 		Timecard reportTimecard = new Timecard();
 
-		if(reports.contains(reportEmail)) {
+		for (OrgChartPerson report : reports) {
+			if(report.email.equals(reportEmail)) {
 
-			// Timecard reportTimecard = generateFakeTimecard(report, month,
-			// year);
-			reportTimecard = new HarvestHelper().getTimecard(reportEmail,
-					month, year);
+				// Timecard reportTimecard = generateFakeTimecard(report, month,
+				// year);
+				reportTimecard = new HarvestHelper().getTimecard(reportEmail,
+						month, year);
 
-			reportTimecard.submissionStatus = getReportTimecardStatus(token,
-					month, year, reportEmail);
+				reportTimecard.submissionStatus = getReportTimecardStatus(token,
+						month, year, reportEmail);
+				
+				reportTimecard.user = report.email;
+				reportTimecard.fullName = report.fullName;
+				
+			}
+			System.out.println(reportTimecard);
 		}
-
-		System.out.println(reportTimecard);
+		
 		return reportTimecard;
 	}
 
-	private ArrayList<String> getReports(String email) {
-		ArrayList<String> reports = new ArrayList<String>();
+	private ArrayList<OrgChartPerson> getReports(String email) {
+		ArrayList<OrgChartPerson> reports = new ArrayList<OrgChartPerson>();
 
 		reports = new OrgChartHelper().getReports(email);
+
+		return reports;
+	}
+	
+	private ArrayList<String> getReportsEmails(String email) {
+		ArrayList<String> reports = new ArrayList<String>();
+
+		reports = new OrgChartHelper().getReportsEmails(email);
 
 		return reports;
 	}
@@ -325,7 +340,7 @@ public class YourFirstAPI {
 
 			if (email != "") {
 
-				ArrayList<String> reports = getReports(email);
+				ArrayList<String> reports = getReportsEmails(email);
 				if (!reports.contains(reportEmail)) {
 					response.setData("NOT AUTHORIZED TO APPROVE THIS TIMECARD");
 					break label;
@@ -366,7 +381,7 @@ public class YourFirstAPI {
 
 			if (email != "") {
 
-				ArrayList<String> reports = getReports(email);
+				ArrayList<String> reports = getReportsEmails(email);
 				if (!reports.contains(reportEmail)) {
 					response.setData("NOT AUTHORIZED TO APPROVE THIS TIMECARD");
 					break label;
@@ -492,7 +507,7 @@ public class YourFirstAPI {
 
 			if (email != "") {
 
-				ArrayList<String> reports = getReports(email);
+				ArrayList<String> reports = getReportsEmails(email);
 				if (!reports.contains(reportEmail)) {
 					response = "NOT AUTHORIZED TO ACCESS THIS PERSON";
 					break label;
