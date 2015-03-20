@@ -26,10 +26,10 @@ public class HarvestHelper {
 		calendar.set(Calendar.YEAR, year);
 		calendar.set(Calendar.MONTH, month - 1);
 		
-		SimpleDateFormat sdf = new SimpleDateFormat("MM/DD/YYYY"); 
+		SimpleDateFormat sdf = new SimpleDateFormat("MM/01/YYYY"); 
 		
 		String sDate = sdf.format(calendar.getTime());
-		
+		//System.out.println(sDate);
 		ViewData viewData = getHarvestTimecard(sDate, email);
 		Timecard timecard = convertViewDataToTimecard(viewData);	
 		timecard.user = email;
