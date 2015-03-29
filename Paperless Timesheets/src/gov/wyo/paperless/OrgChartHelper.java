@@ -253,6 +253,7 @@ public class OrgChartHelper {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	
+		System.out.println(response);
 		return response;
 	}
 	
