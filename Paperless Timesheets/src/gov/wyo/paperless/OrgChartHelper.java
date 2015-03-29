@@ -1,6 +1,7 @@
 package gov.wyo.paperless;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.google.appengine.labs.repackaged.org.json.JSONArray;
 import com.google.appengine.labs.repackaged.org.json.JSONException;
@@ -9,6 +10,14 @@ import com.google.appengine.labs.repackaged.org.json.JSONTokener;
 
 public class OrgChartHelper {
 
+	private String provider;
+	private String accessToken;
+	
+	public OrgChartHelper(String provider, String accessToken){
+		this.provider = provider;
+		this.accessToken = accessToken;
+	}
+	
 	public OrgChartPerson getPerson(String email){
 		
 		String targetUrl = "https://wyoorgdev.appspot.com/_ah/api/personEndpoint/v1/getPersonByEmail?email=" + email.toLowerCase();
@@ -16,7 +25,7 @@ public class OrgChartHelper {
 
 		try {
 			
-			String response = new HttpHelper().sendGet(targetUrl);		
+			String response = getOrgChartResponse(targetUrl);
 			JSONObject personJson = new JSONObject(new JSONTokener(response));
 			person = parsePersonJson(personJson);
 			
@@ -35,7 +44,7 @@ public class OrgChartHelper {
 
 		try {
 			
-			String response = new HttpHelper().sendGet(targetUrl);		
+			String response = getOrgChartResponse(targetUrl);		
 			JSONObject personJson = new JSONObject(new JSONTokener(response));
 			person = parsePersonJson(personJson);
 			
@@ -77,7 +86,7 @@ public class OrgChartHelper {
 
 		try {
 			
-			String response = new HttpHelper().sendGet(targetUrl);		
+			String response = getOrgChartResponse(targetUrl);		
 			JSONObject teamJson = new JSONObject(new JSONTokener(response));
 			team = parseTeamJson(teamJson);
 			
@@ -96,7 +105,7 @@ public class OrgChartHelper {
 
 		try {
 			
-			String response = new HttpHelper().sendGet(targetUrl);		
+			String response = getOrgChartResponse(targetUrl);	
 			JSONObject teamListJson = new JSONObject(new JSONTokener(response));
 			teams = parseTeamListJson(teamListJson);
 			
@@ -228,6 +237,23 @@ public class OrgChartHelper {
 		System.out.println("Person found: " + person.email);
 
 		return person.email;
+	}
+	
+	private HashMap<String, String> getOrgChartOauthHeader(){
+		HashMap<String, String> header = new HashMap<String, String>();
+		header.put("ets_auth", this.provider + "|" + this.accessToken);
+		return header;
+	}
+	
+	private String getOrgChartResponse(String targetUrl){
+		String response = "";
+		try {
+			response = new HttpHelper().sendGet(targetUrl, getOrgChartOauthHeader());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+		return response;
 	}
 	
 }

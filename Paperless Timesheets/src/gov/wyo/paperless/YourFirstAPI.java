@@ -79,7 +79,7 @@ public class YourFirstAPI {
 	private ArrayList<Timecard> getReportTimecardData(String token, int month,
 			int year, boolean statusOnly) {
 		String email = new GoogleHelper().validateEmailFromToken(token);
-		ArrayList<OrgChartPerson> reports = getReports(email);
+		ArrayList<OrgChartPerson> reports = getReports(email, Constants.OAUTH_PROVIDER, token);
 		ArrayList<Timecard> timecards = new ArrayList<Timecard>();
 
 		for (OrgChartPerson report : reports) {
@@ -110,7 +110,7 @@ public class YourFirstAPI {
 			@Named("month") int month, @Named("year") int year, @Named("reportEmail") String reportEmail) {
 
 		String email = new GoogleHelper().validateEmailFromToken(token);
-		ArrayList<OrgChartPerson> reports = getReports(email);
+		ArrayList<OrgChartPerson> reports = getReports(email, Constants.OAUTH_PROVIDER, token);
 		Timecard reportTimecard = new Timecard();
 
 		for (OrgChartPerson report : reports) {
@@ -134,18 +134,18 @@ public class YourFirstAPI {
 		return reportTimecard;
 	}
 
-	private ArrayList<OrgChartPerson> getReports(String email) {
+	private ArrayList<OrgChartPerson> getReports(String email, String provider, String accessToken) {
 		ArrayList<OrgChartPerson> reports = new ArrayList<OrgChartPerson>();
 
-		reports = new OrgChartHelper().getReports(email);
+		reports = new OrgChartHelper(provider, accessToken).getReports(email);
 
 		return reports;
 	}
 	
-	private ArrayList<String> getReportsEmails(String email) {
+	private ArrayList<String> getReportsEmails(String email, String provider, String accessToken) {
 		ArrayList<String> reports = new ArrayList<String>();
 
-		reports = new OrgChartHelper().getReportsEmails(email);
+		reports = new OrgChartHelper(provider, accessToken).getReportsEmails(email);
 
 		return reports;
 	}
@@ -182,8 +182,10 @@ public class YourFirstAPI {
 			}
 
 			if (email != "") {
-				// get service account credential
-				submitTimecard(month, year, goog, email, email);
+				// get supervisor email				
+				String supervisorEmail = new OrgChartHelper(Constants.OAUTH_PROVIDER, accessToken).getSupervisorEmail(email);
+				
+				submitTimecard(month, year, goog, email, email, supervisorEmail);
 				response.setData("SUCCESS");
 
 			} else {
@@ -199,7 +201,7 @@ public class YourFirstAPI {
 	}
 
 	private void submitTimecard(Integer month, Integer year, GoogleHelper goog,
-			String email, String submitter) {
+			String email, String submitter, String supervisorEmail) {
 		GoogleCredential serviceCred = goog.getServiceAccountCredential();
 
 		// get drive service with service account
@@ -240,7 +242,7 @@ public class YourFirstAPI {
 				AccountTypes.group, FileRoles.writer);
 
 		// this works its just annoying...
-		String supervisorEmail = new OrgChartHelper().getSupervisorEmail(email);
+		//String supervisorEmail = new OrgChartHelper().getSupervisorEmail(email);
 		if (email != null) {
 			goog.insertPermission(drive, timesheetId, supervisorEmail,
 					AccountTypes.user, FileRoles.commenter);
@@ -340,13 +342,13 @@ public class YourFirstAPI {
 
 			if (email != "") {
 
-				ArrayList<String> reports = getReportsEmails(email);
+				ArrayList<String> reports = getReportsEmails(email, Constants.OAUTH_PROVIDER, accessToken);
 				if (!reports.contains(reportEmail)) {
 					response.setData("NOT AUTHORIZED TO APPROVE THIS TIMECARD");
 					break label;
 				}
 
-				submitTimecard(month, year, goog, reportEmail, email);
+				submitTimecard(month, year, goog, reportEmail, email, email);
 
 				response.setData("SUCCESS");
 
@@ -381,7 +383,7 @@ public class YourFirstAPI {
 
 			if (email != "") {
 
-				ArrayList<String> reports = getReportsEmails(email);
+				ArrayList<String> reports = getReportsEmails(email, Constants.OAUTH_PROVIDER, accessToken);
 				if (!reports.contains(reportEmail)) {
 					response.setData("NOT AUTHORIZED TO APPROVE THIS TIMECARD");
 					break label;
@@ -507,7 +509,7 @@ public class YourFirstAPI {
 
 			if (email != "") {
 
-				ArrayList<String> reports = getReportsEmails(email);
+				ArrayList<String> reports = getReportsEmails(email, Constants.OAUTH_PROVIDER, accessToken);
 				if (!reports.contains(reportEmail)) {
 					response = "NOT AUTHORIZED TO ACCESS THIS PERSON";
 					break label;

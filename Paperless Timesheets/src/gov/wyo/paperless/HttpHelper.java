@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 
 public class HttpHelper {
 
@@ -61,6 +62,10 @@ public class HttpHelper {
 	}
 
 	public String sendGet(String targetURL) throws Exception {
+		return sendGet(targetURL, null);
+	}
+	
+	public String sendGet(String targetURL, HashMap<String, String> headers) throws Exception {
 
 		String url = targetURL;
 
@@ -70,6 +75,9 @@ public class HttpHelper {
 		// optional default is GET
 		con.setRequestMethod("GET");
 
+		for (String key : headers.keySet()) {
+			con.setRequestProperty(key, headers.get(key));
+		}
 		// add request header
 		// con.setRequestProperty("User-Agent", USER_AGENT);
 

@@ -16,4 +16,6 @@ public class Constants {
   public static final String EMAIL_SCOPE = "https://www.googleapis.com/auth/userinfo.email";
   public static final String SPREADSHEET_FEED = "https://spreadsheets.google.com/feeds/spreadsheets/private/full";
   public static final String TIMECARD_GROUP = "paperless-timesheet-test@googlegroups.com";
+
+  public static final String OAUTH_PROVIDER = "google";
 }
