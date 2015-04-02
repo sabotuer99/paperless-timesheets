@@ -75,9 +75,11 @@ public class HttpHelper {
 		// optional default is GET
 		con.setRequestMethod("GET");
 
-		for (String key : headers.keySet()) {
-			con.setRequestProperty(key, headers.get(key));
-			System.out.println("Adding header:" + key + ": " + headers.get(key));
+		if(headers != null){
+			for (String key : headers.keySet()) {
+				con.setRequestProperty(key, headers.get(key));
+				System.out.println("Adding header:" + key + ": " + headers.get(key));
+			}
 		}
 		// add request header
 		// con.setRequestProperty("User-Agent", USER_AGENT);
