@@ -64,7 +64,7 @@ public class OrgChartHelper {
 		try {
 			if (personJson.has("id")) {
 				person.id = personJson.getString("id");
-				person.teamId = personJson.getString("teamId");
+				//person.teamId = personJson.getString("teamId");
 				person.firstName = personJson.getString("firstName");
 				person.lastName = personJson.getString("lastName");
 				person.email = personJson.getString("email");
@@ -174,13 +174,34 @@ public class OrgChartHelper {
 		
 		System.out.println("Search email: " + email);
 		
-		OrgChartPerson person = getPerson(email);
-		OrgChartTeam team = getTeam(person.teamId);
+		//OrgChartPerson person = getPerson(email);
+		//OrgChartTeam team = getTeam(person.teamId);
 		ArrayList<String> reports = new ArrayList<String>();
 		
-		System.out.println("Person found: " + person.email);
-		System.out.println("Team found: " + team.id);
+		//System.out.println("Person found: " + person.email);
+		//System.out.println("Team found: " + team.id);
 		
+		String targetUrl = "https://wyoorgdev.appspot.com/_ah/api/personEndpoint/v1/getAllDirectReports?email=" + email;
+		//OrgChartTeam team = new OrgChartTeam();
+
+		try {
+			
+			String response = getOrgChartResponse(targetUrl);		
+			JSONObject listJson = new JSONObject(new JSONTokener(response));
+			
+			JSONArray membersJson = listJson.getJSONArray("items");
+			
+			for (int i = 0; i < membersJson.length(); i++) {
+				OrgChartPerson person = parsePersonJson(membersJson.getJSONObject(i));
+				reports.add(person.email);
+			}
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		/*
 		if(team != null && team.teamLeaderId != null && team.teamLeaderId.equals(person.id)) {
 			for (OrgChartPerson report : team.members) {				
 				if(report != null && report.email != null && !report.email.equals(email)){
@@ -196,17 +217,37 @@ public class OrgChartHelper {
 				}
 			}		
 		}
-		
+		*/
 		return reports;
 	}
 	
 	public ArrayList<OrgChartPerson> getReports(String email){
 		System.out.println("Search email: " + email);
 		
-		OrgChartPerson person = getPerson(email);
-		OrgChartTeam team = getTeam(person.teamId);
+		//OrgChartPerson person = getPerson(email);
+		//OrgChartTeam team = getTeam(person.teamId);
 		ArrayList<OrgChartPerson> reports = new ArrayList<OrgChartPerson>();
+		String targetUrl = "https://wyoorgdev.appspot.com/_ah/api/personEndpoint/v1/getAllDirectReports?email=" + email;
+		//OrgChartTeam team = new OrgChartTeam();
+
+		try {
+			
+			String response = getOrgChartResponse(targetUrl);		
+			JSONObject listJson = new JSONObject(new JSONTokener(response));
+			
+			JSONArray membersJson = listJson.getJSONArray("items");
+			
+			for (int i = 0; i < membersJson.length(); i++) {
+				OrgChartPerson person = parsePersonJson(membersJson.getJSONObject(i));
+				reports.add(person);
+			}
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
+		/*
 		System.out.println("Person found: " + person.email);
 		System.out.println("Team found: " + team.id);
 		
@@ -225,7 +266,7 @@ public class OrgChartHelper {
 				}
 			}		
 		}
-		
+		*/
 		return reports;
 	}
 	
